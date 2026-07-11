@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passenger Search - ARFOMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-deep: #020617;
+            --primary-mid: #0b1f5e;
+            --primary-vivid: #1d4ed8;
+            --neutral-dark: #0f172a;
+            --surface-bg: #f8fafc;
+            --card-white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-success: #22c55e;
+            --accent-warn: #f59e0b;
+            --border-subtle: #e2e8f0;
+        }
+        body { background: var(--surface-bg); color: var(--text-primary); }
+        .app-header { background: var(--primary-deep); border-bottom: 1px solid var(--primary-mid); }
+        .app-sidebar { background: var(--primary-mid); border-color: var(--primary-deep); }
+        .logo-mark { background: var(--primary-vivid); }
+        .nav-link {
+            display: flex; width: 100%; align-items: center; border-left: 4px solid transparent;
+            border-radius: 0.5rem; padding: 0.75rem 1rem; text-align: left; font-weight: 500;
+            color: rgb(219 234 254 / 0.8); transition: all 150ms ease;
+        }
+        .nav-link:hover { background: rgb(255 255 255 / 0.1); color: #ffffff; }
+        .nav-link.active { border-left-color: var(--accent-warn); background: rgb(255 255 255 / 0.15); color: #ffffff; }
+        .card { background: var(--card-white); border: 1px solid var(--border-subtle); border-radius: 0.75rem; box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
+        .primary-button { background: var(--primary-mid); color: #ffffff; transition: background 150ms ease; }
+        .primary-button:hover { background: var(--primary-vivid); }
+        .form-control { background: var(--surface-bg); border: 1px solid var(--border-subtle); }
+        .form-control:focus { background: var(--card-white); outline: none; box-shadow: 0 0 0 2px var(--primary-vivid); }
+    </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col">
+
+    <header class="app-header text-white shadow-md">
+        <div class="w-full px-6 py-4 flex items-center justify-between">
+            <a href="/checkin/search/index.html" class="flex items-center space-x-3">
+                <div class="logo-mark flex h-11 w-11 items-center justify-center rounded-xl shadow-lg shadow-blue-950/30 ring-1 ring-white/10">
+                    <i class="fa-solid fa-plane-up text-xl text-white"></i>
+                </div>
+                <div class="leading-tight">
+                    <span class="block text-2xl font-extrabold tracking-wider uppercase">ARFOMS</span>
+                    <span class="block text-xs font-semibold uppercase tracking-[0.25em] text-blue-200">Airline Ops</span>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <div class="flex flex-1 flex-col md:flex-row">
+        <nav class="app-sidebar border-b shadow-sm md:w-72 md:min-h-[calc(100vh-73px)] md:border-b-0 md:border-r md:sticky md:top-0 md:self-start">
+            <div class="p-4 space-y-2">
+                <p class="px-4 pb-2 text-xs font-bold uppercase tracking-wider text-blue-200/80">Navigation</p>
+                <a href="/checkin/search/index.html" class="nav-link active"><i class="fa-solid fa-magnifying-glass mr-2"></i>1. Passenger Search</a>
+                <a href="/checkin/index.html" class="nav-link"><i class="fa-solid fa-suitcase mr-2"></i>2. Check-In & Baggage</a>
+                <a href="/checkin/boarding/index.html" class="nav-link"><i class="fa-solid fa-id-card-clip mr-2"></i>3. Gate Boarding</a>
+                <a href="/checkin/manifest.html" class="nav-link"><i class="fa-solid fa-list-check mr-2"></i>4. Manifest & Offload</a>
+            </div>
+        </nav>
+
+        <div class="flex min-w-0 flex-1 flex-col">
+            <main class="w-full max-w-7xl mx-auto px-6 py-8 flex-grow space-y-6">
+                <div class="card p-6">
+                    <h2 class="text-xl font-bold text-slate-900 mb-4">Passenger Lookup Dashboard</h2>
+                    <p class="text-slate-500 text-sm mb-6">Search by Booking ID, Passenger Name, or Flight Number to initiate the check-in process.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="md:col-span-3">
+                            <div class="relative">
+                                <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400"></i>
+                                <input id="bookingIdInput" type="text" placeholder="Enter Booking ID (e.g., 1) or Passenger Name..." class="form-control w-full pl-11 pr-4 py-3 rounded-lg transition-all">
+                            </div>
+                        </div>
+                        <button id="searchButton" type="button" onclick="searchPassenger()" class="primary-button font-medium px-6 py-3 rounded-lg shadow-sm">
+                            Search Database
+                        </button>
+                    </div>
+                    <p id="searchMessage" class="mt-4 hidden text-sm font-medium"></p>
+                </div>
+
+                <div class="card overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+                        <h3 class="font-semibold text-slate-700">Flight Booking Manifest</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-600 uppercase text-xs tracking-wider border-b border-slate-200">
+                                    <th class="py-3 px-6">Booking ID</th>
+                                    <th class="py-3 px-6">Passenger Name</th>
+                                    <th class="py-3 px-6">Flight / Route</th>
+                                    <th class="py-3 px-6">Class</th>
+                                    <th class="py-3 px-6 text-center">Status</th>
+                                    <th class="py-3 px-6 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="passengerTableBody" class="text-slate-700 divide-y divide-slate-100">
+                                <tr>
+                                    <td colspan="6" class="py-4 px-6 text-center text-slate-400 text-sm">Enter a valid Booking ID above to search records.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="bg-[var(--card-white)] border-t border-[var(--border-subtle)] mt-auto py-4 text-center text-xs text-[var(--text-secondary)]">
+                &copy; 2026 ARFOMS Airport Systems Cloud Core Hub.
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        const apiBaseUrl = 'http://localhost:8210/api/checkin/booking';
+
+        document.getElementById('bookingIdInput').addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                searchPassenger();
+            }
+        });
+
+        async function searchPassenger() {
+            const bookingIdInput = document.getElementById('bookingIdInput');
+            const searchButton = document.getElementById('searchButton');
+            const searchMessage = document.getElementById('searchMessage');
+            const bookingId = bookingIdInput.value.trim();
+
+            if (!bookingId) {
+                showMessage('Please enter a Booking ID.', 'error');
+                bookingIdInput.focus();
+                return;
+            }
+
+            searchButton.disabled = true;
+            searchButton.textContent = 'Searching...';
+            showMessage('Searching passenger database...', 'info');
+
+            try {
+                let bookingIdToLookup = bookingId;
+
+                // If input is not a pure number, search bookings by name
+                if (isNaN(bookingId)) {
+                    const allBookingsRes = await apiFetch('http://localhost:8210/api/bookings');
+                    if (allBookingsRes.ok) {
+                        const allBookings = await allBookingsRes.json();
+                        const matchedBooking = allBookings.find(b => 
+                            b.passengerName && b.passengerName.toLowerCase().includes(bookingId.toLowerCase())
+                        );
+                        if (matchedBooking) {
+                            bookingIdToLookup = matchedBooking.bookingId;
+                        } else {
+                            throw new Error('No passenger found matching that name.');
+                        }
+                    } else {
+                        throw new Error('Unable to access booking directory.');
+                    }
+                }
+
+                const response = await apiFetch(`${apiBaseUrl}/${encodeURIComponent(bookingIdToLookup)}`);
+
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}`);
+                }
+
+                const lookup = await response.json();
+                console.log('Retrieved Data Context Profile:', lookup);
+                
+                const booking = lookup.booking || {};
+                const flight = lookup.flight || {};
+                let status = 'Not Checked In';
+                if (lookup.alreadyCheckedIn && lookup.existingCheckInId) {
+                    const checkInRes = await apiFetch(`http://localhost:8210/api/checkin/${lookup.existingCheckInId}`);
+                    if (checkInRes.ok) {
+                        const checkInData = await checkInRes.json();
+                        status = checkInData.checkInStatus || 'Checked In';
+                    } else {
+                        status = 'Checked In';
+                    }
+                }
+                
+                const passenger = {
+                    bookingId: booking.bookingId || bookingId,
+                    passengerName: booking.passengerName,
+                    flightNumber: flight.flightNumber,
+                    route: flight.origin && flight.destination ? `${flight.origin} - ${flight.destination}` : 'N/A',
+                    travelClass: 'Economy', 
+                    status: status
+                };
+
+                renderPassenger(passenger, bookingId);
+                showMessage('Passenger data loaded successfully.', 'success');
+            } catch (error) {
+                console.error('Error fetching passenger data:', error);
+                showMessage(`Unable to fetch passenger data: ${error.message}`, 'error');
+            } finally {
+                searchButton.disabled = false;
+                searchButton.textContent = 'Search Database';
+            }
+        }
+
+        function renderPassenger(passenger, searchId) {
+            const tableBody = document.getElementById('passengerTableBody');
+            
+            const bookingId = passenger.bookingId || searchId;
+            const passengerName = passenger.passengerName || 'N/A';
+            const flightNumber = passenger.flightNumber || 'N/A';
+            const route = passenger.route || 'N/A';
+            const travelClass = passenger.travelClass || 'N/A';
+            const status = passenger.status || 'Not Checked In';
+
+            const normalizedStatus = String(status).toUpperCase();
+            let actionHtml = '';
+
+            // FIXED: Lock the action button if the active registration record has already been handled
+            if (normalizedStatus === 'NOT CHECKED IN' || normalizedStatus === 'N/A') {
+                actionHtml = `
+                    <a href="/checkin/index.html?bookingId=${bookingId}" class="inline-block bg-[var(--surface-bg)] text-[var(--primary-mid)] hover:bg-[var(--primary-mid)] hover:text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-all border border-[var(--border-subtle)]">
+                        Check-In Passenger
+                    </a>`;
+            } else {
+                actionHtml = `<span class="text-xs font-semibold text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-lock mr-1"></i> Processed</span>`;
+            }
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td class="py-4 px-6 font-mono text-sm font-semibold">${escapeHtml(bookingId)}</td>
+                    <td class="py-4 px-6 font-medium">${escapeHtml(passengerName)}</td>
+                    <td class="py-4 px-6">${escapeHtml(flightNumber)} ${route !== 'N/A' ? `(${escapeHtml(route)})` : ''}</td>
+                    <td class="py-4 px-6"><span class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded uppercase">${escapeHtml(travelClass)}</span></td>
+                    <td class="py-4 px-6 text-center">${statusBadge(status)}</td>
+                    <td class="py-4 px-6 text-right">${actionHtml}</td>
+                </tr>
+            `;
+        }
+
+        function statusBadge(status) {
+            const normalizedStatus = String(status).toUpperCase();
+            if (normalizedStatus.includes('CHECKED_IN') || normalizedStatus === 'CHECKED') {
+                return `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Checked In</span>`;
+            } else if (normalizedStatus.includes('BOARDED')) {
+                return `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">Boarded</span>`;
+            } else if (normalizedStatus.includes('OFFLOADED')) {
+                return `<span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">Offloaded</span>`;
+            }
+            return `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">Not Checked In</span>`;
+        }
+
+        function showMessage(message, type) {
+            const searchMessage = document.getElementById('searchMessage');
+            const colorClass = {
+                info: 'text-slate-500',
+                success: 'text-green-700',
+                error: 'text-red-700'
+            }[type];
+
+            searchMessage.className = `mt-4 text-sm font-medium ${colorClass}`;
+            searchMessage.textContent = message;
+            searchMessage.classList.remove('hidden');
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+    </script>
+    <script src="../arfoms-header.js" data-title="Passenger Search"></script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>

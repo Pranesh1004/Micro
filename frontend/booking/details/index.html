@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings Dashboard | Airway Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #ffffff; color: #212529; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .page-content { padding-top: 110px; }
+        .top-nav {
+            position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 80px;
+            z-index: 1030; display: flex; align-items: center;
+            background: linear-gradient(90deg, #020617 0%, #0b1f5e 55%, #1d4ed8 100%);
+            box-shadow: 0 10px 28px rgba(2,6,23,.22);
+        }
+        .top-nav-inner {
+            position: relative; width: 100%; height: 100%; padding: 0 28px;
+            display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; flex: 1 1 0; min-width: 0; }
+        .nav-left  { justify-content: flex-start; }
+        .nav-right { justify-content: flex-end; }
+        .nav-title {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+            color: #fff; font-size: 1.6rem; font-weight: 800; letter-spacing: .02em;
+            white-space: nowrap; pointer-events: none;
+        }
+        .nav-icon {
+            width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+            background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.14);
+            color: #fff; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .nav-pill {
+            display: flex; align-items: center; gap: 10px; padding: .55rem .9rem;
+            border-radius: 999px; border: 1px solid rgba(255,255,255,.24);
+            background: rgba(255,255,255,.08); color: #fff; backdrop-filter: blur(8px);
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .nav-pill-brand { font-weight: 800; letter-spacing: .03em; }
+        .redbus-nav { background-color: #1A2F57; border-bottom: 4px solid #3D7AE6; padding: 18px 0; }
+        .color-navy { color: #1F3763; }
+        .color-royal { color: #3D7AE6; }
+        .color-muted-blue { color: #8FAED6; }
+        .booking-card { background: #ffffff; border: 2px solid #e9ecef; border-radius: 12px; transition: all 0.3s ease; }
+        .booking-card:hover { box-shadow: 0 6px 18px rgba(31, 55, 99, 0.12); border-color: #8FAED6; }
+        .card-ribbon { background-color: #1F3763; color: #ffffff; border-radius: 10px 10px 0 0; padding: 12px 20px; }
+        .btn-royal { background-color: #3D7AE6; color: white; font-weight: 600; border-radius: 6px; }
+        .btn-royal:hover { background-color: #1F3763; color: white; }
+        .btn-outline-navy { border: 2px solid #1F3763; color: #1F3763; font-weight: 600; border-radius: 6px; }
+        .btn-outline-navy:hover { background-color: #1F3763; color: white; }
+        .guidelines-box { background-color: #f8f9fa; border-left: 4px solid #3D7AE6; padding: 15px; border-radius: 4px; }
+        .seat-box { width: 40px; height: 40px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; }
+        .seat-box.selected { background-color: #3D7AE6 !important; color: white !important; }
+        .seat-box.occupied { background-color: #1A2F57 !important; color: #8FAED6 !important; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <div class="nav-left" aria-hidden="true">
+            <div class="nav-icon"><i class="fa-solid fa-plane-up"></i></div>
+        </div>
+        <div class="nav-title">Manage Booking</div>
+        <div class="nav-right">
+            <div class="nav-pill">
+                <span class="nav-pill-brand">ARFOMS</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-3 page-content">
+    <h3 class="fw-bold color-navy mb-4"><i class="fa-solid fa-suitcase-rolling me-2 color-royal"></i>My Bookings</h3>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- All past bookings are rendered here dynamically -->
+            <div id="bookingsContainer"></div>
+            <div id="noBookings" class="text-center py-5 d-none">
+                <i class="fa-solid fa-suitcase-rolling text-muted mb-3" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold color-navy mb-1">No Past Bookings Found</h5>
+                <p class="text-muted mb-3">You haven't made any bookings yet.</p>
+                <a href="index.html" class="btn btn-royal px-4">
+                    <i class="fa-solid fa-magnifying-glass me-2"></i>Search Flights
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modify Modal -->
+<div class="modal fade" id="modifyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #1A2F57;">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-pen-to-square me-2"></i>Modify Flight Parameters</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="modifyTicketForm">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold color-navy" for="newDateInput">Change Travel Date</label>
+                        <input type="date" id="newDateInput" class="form-control" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold color-navy d-block mb-1">Select New Seat Allocation</label>
+                        <div class="d-flex flex-wrap gap-2 justify-content-center p-3 border rounded bg-light">
+                            <div class="seat-box occupied">1A</div>
+                            <div class="seat-box occupied">1B</div>
+                            <div class="seat-box seat-selectable">1C</div>
+                            <div class="seat-box seat-selectable">1D</div>
+                            <div class="seat-box occupied">2A</div>
+                            <div class="seat-box seat-selectable">2B</div>
+                            <div class="seat-box seat-selectable">2C</div>
+                            <div class="seat-box occupied">2D</div>
+                        </div>
+                        <input type="hidden" id="chosenSeatVal">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal">Dismiss</button>
+                        <button type="submit" class="btn btn-royal w-50">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #1A2F57;">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i>Cancel Flight Booking</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="cancelMain">
+                    <h6 class="fw-bold color-navy mb-2"><i class="fa-solid fa-file-shield me-2 color-royal"></i>Cancellation Conditions</h6>
+                    <div class="guidelines-box mb-3 small text-secondary">
+                        <ul class="mb-0 ps-3">
+                            <li class="mb-1">Before 5 Days: Eligible for a <strong>75% refund</strong>.</li>
+                            <li class="mb-1">2-4 Days Before: Eligible for a <strong>50% refund</strong>.</li>
+                            <li class="mb-1">1 Day Before: Eligible for a <strong>40% refund</strong>.</li>
+                            <li>Day of Departure: <strong>Cancellation Blocked</strong>.</li>
+                        </ul>
+                    </div>
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="agreeGuidelines">
+                        <label class="form-check-label small fw-semibold color-navy" for="agreeGuidelines">
+                            I have read and agree to the cancellation conditions stated above.
+                        </label>
+                    </div>
+
+                    <form id="cancelTicketForm" class="d-flex gap-2 mt-2">
+                        <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal">Keep Booking</button>
+                        <button id="finalCancelBtn" type="submit" class="btn btn-danger w-50" disabled>
+                            <i class="fa-solid fa-rectangle-xmark me-1"></i> Cancel Ticket
+                        </button>
+                    </form>
+                </div>
+
+                <div id="cancelSuccess" class="text-center py-4 d-none">
+                    <i class="fa-solid fa-circle-check text-success mb-3" style="font-size: 3.5rem;"></i>
+                    <h5 class="fw-bold color-navy mb-1">Ticket Cancelled</h5>
+                    <p class="text-muted mb-4">Your ticket has been cancelled successfully.</p>
+                    <button type="button" class="btn btn-royal px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE = "http://localhost:8210/api/bookings";
+    let currentBooking = null;
+
+    function text(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = (value == null || value === "") ? "-" : value;
+    }
+
+    function escapeHtml(value) {
+        if (value == null) return "";
+        return String(value)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    function statusBadgeClass(status) {
+        return (status && status.toUpperCase() === "CANCELLED") ? "bg-danger" : "bg-success";
+    }
+
+    // Load ALL past bookings and render them as cards
+    async function loadBookings() {
+        try {
+            const res = await apiFetch(API_BASE);
+            if (!res.ok) throw new Error("Failed to load bookings");
+            let bookings = await res.json();
+            
+            // Map the booking-service payload into what the UI expects and fetch flight info
+            for (let b of bookings) {
+                b.status = b.bookingStatus;
+                b.seat = b.seatNumber;
+                b.fare = b.fareAmount;
+                b.id = b.bookingId;
+                if (b.flightId) {
+                    try {
+                        const flightRes = await apiFetch(`http://localhost:8210/api/flights/${b.flightId}`);
+                        if (flightRes.ok) {
+                            const f = await flightRes.json();
+                            b.airline = f.flightNumber || "-";
+                            b.flightType = "Domestic";
+                            b.flyDate = f.departureTime ? f.departureTime.split('T')[0] : "-";
+                            b.fromLocation = f.origin || "-";
+                            b.toLocation = f.destination || "-";
+                        }
+                    } catch(e) {}
+                }
+            }
+            renderList(bookings || []);
+        } catch (err) {
+            console.error(err);
+            // On error, treat as no bookings so the user sees a clear message
+            renderList([]);
+        }
+    }
+
+    function renderList(bookings) {
+        const container = document.getElementById("bookingsContainer");
+        const empty = document.getElementById("noBookings");
+        container.innerHTML = "";
+
+        if (!bookings.length) {
+            empty.classList.remove("d-none");
+            return;
+        }
+        empty.classList.add("d-none");
+
+        bookings.forEach(b => {
+            const isCancelled = b.status && b.status.toUpperCase() === "CANCELLED";
+            const card = document.createElement("div");
+            card.className = "booking-card mb-4";
+            card.innerHTML = `
+                <div class="card-ribbon d-flex justify-content-between align-items-center">
+                    <span><strong class="color-muted-blue">PNR Reference:</strong> ${escapeHtml(b.pnr) || "-"}</span>
+                    <span class="badge ${statusBadgeClass(b.status)}">Status: ${escapeHtml(b.status) || "-"}</span>
+                </div>
+                <div class="p-4">
+                    <div class="row align-items-center text-center text-md-start">
+                        <div class="col-md-3">
+                            <h5 class="fw-bold color-navy m-0">${escapeHtml(b.airline) || "-"}</h5>
+                            <small class="text-muted">Flight Type: ${escapeHtml(b.flightType) || "-"}</small>
+                            <span class="d-block small mt-1 text-primary">
+                                <i class="fa-solid fa-calendar-days me-1"></i>Fly Date: ${escapeHtml(b.flyDate) || "-"}
+                            </span>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3">
+                                <div>
+                                    <strong class="fs-5 d-block">${escapeHtml(b.fromLocation) || "-"}</strong>
+                                    <small class="text-muted">Origin</small>
+                                </div>
+                                <div class="text-center flex-grow-1 px-2">
+                                    <small class="color-royal d-block">Non-stop</small>
+                                    <hr class="my-1">
+                                </div>
+                                <div>
+                                    <strong class="fs-5 d-block">${escapeHtml(b.toLocation) || "-"}</strong>
+                                    <small class="text-muted">Destination</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-md-center my-3 my-md-0">
+                            <span class="text-muted d-block small">Seat & Fare:</span>
+                            <strong class="color-navy d-block">Seat ${escapeHtml(b.seat) || "-"}</strong>
+                            <strong class="text-success">₹${b.fare != null ? b.fare : "-"}</strong>
+                        </div>
+                        <div class="col-md-3 text-md-end d-flex flex-column gap-2">
+                            <button class="btn btn-royal btn-sm py-2 modify-btn" ${isCancelled ? "disabled" : ""}>
+                                <i class="fa-solid fa-sliders me-1"></i> Modify Date / Seat
+                            </button>
+                            <button class="btn btn-outline-navy btn-sm py-2 cancel-btn" ${isCancelled ? "disabled" : ""}>
+                                <i class="fa-solid fa-rectangle-xmark me-1"></i> Cancel Ticket
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+
+            card.querySelector(".modify-btn").addEventListener("click", () => openModify(b));
+            card.querySelector(".cancel-btn").addEventListener("click", () => openCancel(b));
+            container.appendChild(card);
+        });
+    }
+
+    // Returns today's date in IST (Asia/Kolkata) as a YYYY-MM-DD string
+    function getTodayIST() {
+        const parts = new Intl.DateTimeFormat("en-CA", {
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }).format(new Date());
+        return parts; // en-CA locale gives YYYY-MM-DD
+    }
+
+    function openModify(b) {
+        currentBooking = b;
+        const todayIST = getTodayIST();
+        const dateInput = document.getElementById("newDateInput");
+        // Restrict the picker to today (IST) and future dates only
+        dateInput.min = todayIST;
+        // Keep the existing fly date only if it is today or later, otherwise default to today
+        dateInput.value = (b.flyDate && b.flyDate >= todayIST) ? b.flyDate : todayIST;
+        document.getElementById("chosenSeatVal").value = b.seat || "";
+        new bootstrap.Modal(document.getElementById("modifyModal")).show();
+    }
+
+    function openCancel(b) {
+        currentBooking = b;
+        resetCancelModal();
+        new bootstrap.Modal(document.getElementById("cancelModal")).show();
+    }
+
+    function resetCancelModal() {
+        document.getElementById("agreeGuidelines").checked = false;
+        document.getElementById("finalCancelBtn").disabled = true;
+        document.getElementById("cancelMain").classList.remove("d-none");
+        document.getElementById("cancelSuccess").classList.add("d-none");
+    }
+
+    // Modify submit
+    document.getElementById("modifyTicketForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        if (!currentBooking || currentBooking.id == null) {
+            alert("No booking available to modify.");
+            return;
+        }
+        
+        const payload = {
+            passengerName: currentBooking.passengerName,
+            seatNumber: document.getElementById("chosenSeatVal").value
+        };
+        try {
+            const res = await apiFetch(`${API_BASE}/${currentBooking.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error("Modify failed");
+            currentBooking = await res.json();
+            bootstrap.Modal.getInstance(document.getElementById("modifyModal")).hide();
+            await loadBookings();
+            alert("Booking updated successfully.");
+        } catch (err) {
+            alert("Unable to modify booking.");
+            console.error(err);
+        }
+    });
+
+    // Cancel submit
+    document.getElementById("cancelTicketForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        if (!currentBooking || currentBooking.id == null) {
+            alert("No booking available to cancel.");
+            return;
+        }
+        try {
+            const res = await apiFetch(`${API_BASE}/${currentBooking.id}/cancel`, { method: "PATCH" });
+            if (!res.ok) throw new Error("Cancel failed");
+            currentBooking = await res.json();
+            // Show the in-modal confirmation message instead of an alert
+            document.getElementById("cancelMain").classList.add("d-none");
+            document.getElementById("cancelSuccess").classList.remove("d-none");
+            await loadBookings();
+        } catch (err) {
+            alert("Unable to cancel booking.");
+            console.error(err);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadBookings();
+
+        document.getElementById("agreeGuidelines").addEventListener("change", function () {
+            // Enable the Cancel Ticket button only once the conditions are agreed to
+            document.getElementById("finalCancelBtn").disabled = !this.checked;
+        });
+
+        document.querySelectorAll(".seat-selectable").forEach(function (element) {
+            element.addEventListener("click", function () {
+                document.querySelectorAll(".seat-box").forEach(sb => sb.classList.remove("selected"));
+                this.classList.add("selected");
+                document.getElementById("chosenSeatVal").value = this.innerText;
+            });
+        });
+    });
+</script>
+    <script src="../../arfoms-header.js" data-title="Manage Booking"></script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>

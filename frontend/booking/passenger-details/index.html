@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passenger Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .page-content { padding-top: 110px; }
+        .top-nav {
+            position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 80px;
+            z-index: 1030; display: flex; align-items: center;
+            background: linear-gradient(90deg, #020617 0%, #0b1f5e 55%, #1d4ed8 100%);
+            box-shadow: 0 10px 28px rgba(2,6,23,.22);
+        }
+        .top-nav-inner {
+            position: relative; width: 100%; height: 100%; padding: 0 28px;
+            display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; flex: 1 1 0; min-width: 0; }
+        .nav-left  { justify-content: flex-start; }
+        .nav-right { justify-content: flex-end; }
+        .nav-title {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+            color: #fff; font-size: 1.6rem; font-weight: 800; letter-spacing: .02em;
+            white-space: nowrap; pointer-events: none;
+        }
+        .nav-icon {
+            width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+            background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.14);
+            color: #fff; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .nav-pill {
+            display: flex; align-items: center; gap: 10px; padding: .55rem .9rem;
+            border-radius: 999px; border: 1px solid rgba(255,255,255,.24);
+            background: rgba(255,255,255,.08); color: #fff; backdrop-filter: blur(8px);
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .nav-pill-brand { font-weight: 800; letter-spacing: .03em; }
+        .form-shell { max-width: 760px; margin: 0 auto; }
+        .passenger-card { border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; box-shadow: 0 4px 14px rgba(15,23,42,.05); overflow: hidden; }
+        .passenger-card .card-head { background: #0b1f5e; color: #fff; padding: 12px 20px; font-weight: 600; }
+        .form-label { font-weight: 600; font-size: .85rem; color: #334155; }
+    </style>
+<body>
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <div class="nav-left" aria-hidden="true">
+            <div class="nav-icon"><i class="fa-solid fa-plane-up"></i></div>
+        </div>
+        <div class="nav-title">Passenger Details</div>
+        <div class="nav-right">
+
+            <div class="nav-pill d-none d-md-inline-flex">
+                <span class="nav-pill-brand">ARFOMS</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container page-content pb-5 form-shell">
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Flight Summary</h5>
+            <div class="row g-3">
+                <div class="col-md-3"><small class="text-muted d-block">From</small><strong id="sumFrom">-</strong></div>
+                <div class="col-md-3"><small class="text-muted d-block">To</small><strong id="sumTo">-</strong></div>
+                <div class="col-md-3"><small class="text-muted d-block">Date</small><strong id="sumDate">-</strong></div>
+                <div class="col-md-3"><small class="text-muted d-block">Airline</small><strong id="sumAirline">-</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <form id="passengerForm" class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0">Enter Passenger Information</h5>
+                <span class="badge bg-primary fs-6"><i class="fa-solid fa-users me-1"></i><span id="passengerCountLabel">1</span> Passenger(s)</span>
+            </div>
+
+            <div id="passengerContainer" class="d-grid gap-4"></div>
+
+            <div class="mt-4 d-flex gap-2 justify-content-end">
+                <a href="index.html" class="btn btn-outline-secondary">Back</a>
+                <button type="submit" class="btn btn-primary">Confirm Booking</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Corrected base path to route requests to BookingController's /flights endpoints
+    const API_BASE = "http://localhost:8210/flights";
+    const selectedFlight = JSON.parse(sessionStorage.getItem("selectedFlight") || "{}");
+
+    if (!selectedFlight || !selectedFlight.flightId) {
+        alert('No flight selected. Please choose a flight first.');
+        window.location.href = 'index.html';
+    }
+
+    const passengerContainer = document.getElementById("passengerContainer");
+    const passengerCount = Math.min(Math.max(parseInt(selectedFlight.passengers || "1", 10), 1), 9);
+
+    document.getElementById("sumFrom").textContent = selectedFlight.fromLocation || "-";
+    document.getElementById("sumTo").textContent = selectedFlight.toLocation || "-";
+    document.getElementById("sumDate").textContent = selectedFlight.departureDate || "-";
+    document.getElementById("sumAirline").textContent = selectedFlight.airline || "-";
+    document.getElementById("passengerCountLabel").textContent = passengerCount;
+
+    function buildCard(index, data) {
+        const wrap = document.createElement("div");
+        wrap.className = "passenger-card";
+        wrap.innerHTML = `
+            <div class="card-head"><i class="fa-solid fa-user me-2"></i>Passenger ${index + 1}</div>
+            <div class="p-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Passenger ID <span class="text-muted">(optional — for returning passengers)</span></label>
+                        <input type="number" min="1" class="form-control" placeholder="Existing passenger ID" name="passengerDetails[${index}].id" value="${data.id || ''}">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-primary w-100 fetch-passenger-btn" data-index="${index}">
+                            <i class="fa-solid fa-magnifying-glass me-1"></i>Fetch details
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input class="form-control" placeholder="Enter full name" required name="passengerDetails[${index}].fullName" value="${data.fullName || ''}">
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Age</label>
+                        <input type="number" min="1" max="120" class="form-control" placeholder="Age" required name="passengerDetails[${index}].age" value="${data.age || ''}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Gender</label>
+                        <select class="form-select" required name="passengerDetails[${index}].gender">
+                            <option value="">Select Gender</option>
+                            <option value="Male" ${data.gender === 'Male' ? 'selected' : ''}>Male</option>
+                            <option value="Female" ${data.gender === 'Female' ? 'selected' : ''}>Female</option>
+                            <option value="Other" ${data.gender === 'Other' ? 'selected' : ''}>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" placeholder="name@example.com" required name="passengerDetails[${index}].email" value="${data.email || ''}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" pattern="[0-9]{10}" maxlength="10" class="form-control" placeholder="10-digit number" required name="passengerDetails[${index}].phone" value="${data.phone || ''}">
+                    </div>
+                </div>
+            </div>`;
+        return wrap;
+    }
+
+    function renderPassengerCards() {
+        passengerContainer.innerHTML = "";
+        for (let index = 0; index < passengerCount; index++) {
+            passengerContainer.appendChild(buildCard(index, {}));
+        }
+        passengerContainer.querySelectorAll(".fetch-passenger-btn").forEach(btn => {
+            btn.addEventListener("click", () => fetchPassenger(btn.dataset.index));
+        });
+    }
+
+    async function fetchPassenger(index) {
+        const idInput = passengerContainer.querySelector(`[name='passengerDetails[${index}].id']`);
+        const id = idInput && idInput.value ? idInput.value.trim() : "";
+        if (!id) {
+            alert("Enter a passenger ID to fetch their saved details.");
+            return;
+        }
+        try {
+            // Corrected routing destination address mapping
+            const res = await apiFetch(`${API_BASE}/passenger/${encodeURIComponent(id)}`);
+            if (!res.ok) throw new Error("not found");
+            const p = await res.json();
+            if (!p || !p.id) {
+                alert("No passenger found with ID " + id);
+                return;
+            }
+            const setVal = (field, val) => {
+                const el = passengerContainer.querySelector(`[name='passengerDetails[${index}].${field}']`);
+                if (el && val != null) el.value = val;
+            };
+            setVal("fullName", p.fullName);
+            setVal("age", p.age);
+            setVal("gender", p.gender);
+            setVal("email", p.email);
+            setVal("phone", p.phone);
+        } catch (err) {
+            alert("Could not fetch passenger with ID " + id);
+        }
+    }
+
+    function validateNoDuplicatePassengers(passengerDetails) {
+        const seenEmails = new Set();
+        const seenNames = new Set();
+
+        for (const passenger of passengerDetails) {
+            if (!passenger.fullName || !passenger.fullName.trim()) continue;
+
+            const nameKey = passenger.fullName.trim().toLowerCase();
+            const emailKey = passenger.email ? passenger.email.trim().toLowerCase() : null;
+
+            // Check for duplicate email
+            if (emailKey) {
+                if (seenEmails.has(emailKey)) {
+                    return {
+                        valid: false,
+                        message: `Passenger with email "${passenger.email}" appears multiple times. Each person can only book one seat on this flight.`
+                    };
+                }
+                seenEmails.add(emailKey);
+            }
+
+            // Check for duplicate name
+            if (seenNames.has(nameKey)) {
+                return {
+                    valid: false,
+                    message: `Passenger "${passenger.fullName}" appears multiple times. Each person can only book one seat on this flight.`
+                };
+            }
+            seenNames.add(nameKey);
+        }
+
+        return { valid: true };
+    }
+
+    document.getElementById("passengerForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const count = passengerCount;
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const passengerDetails = [];
+        for (let i = 0; i < count; i++) {
+            const idVal = (this.querySelector(`[name='passengerDetails[${i}].id']`).value || "").trim();
+            passengerDetails.push({
+                id: idVal ? parseInt(idVal, 10) : null,
+                fullName: this.querySelector(`[name='passengerDetails[${i}].fullName']`).value,
+                age: parseInt(this.querySelector(`[name='passengerDetails[${i}].age']`).value || "0", 10),
+                gender: this.querySelector(`[name='passengerDetails[${i}].gender']`).value,
+                email: this.querySelector(`[name='passengerDetails[${i}].email']`).value,
+                phone: this.querySelector(`[name='passengerDetails[${i}].phone']`).value
+            });
+        }
+
+        // Frontend validation: Check for duplicate passengers
+        const frontendValidation = validateNoDuplicatePassengers(passengerDetails);
+        if (!frontendValidation.valid) {
+            alert(frontendValidation.message);
+            return;
+        }
+
+        // Backend validation endpoint does not exist yet; we rely on frontend validation.
+        submitBtn.disabled = false;
+
+        const draft = Object.assign({}, selectedFlight, {
+            passengers: count,
+            passengerDetails: passengerDetails
+        });
+        sessionStorage.setItem("selectedFlight", JSON.stringify(draft));
+        window.location.href = "/seatinventory/index.html";
+    });
+
+    renderPassengerCards();
+</script>
+<script src="../arfoms-header.js" data-title="Passenger Details"></script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>

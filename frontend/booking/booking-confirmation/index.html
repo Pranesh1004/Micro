@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation | Airway Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; color: #212529; font-family: 'Segoe UI', sans-serif; margin: 0; padding-top: 80px; }
+        .page-content { padding-top: 24px; }
+        .top-nav {
+            position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 80px;
+            z-index: 1030; display: flex; align-items: center;
+            background: linear-gradient(90deg, #020617 0%, #0b1f5e 55%, #1d4ed8 100%);
+            box-shadow: 0 10px 28px rgba(2,6,23,.22);
+        }
+        .top-nav-inner {
+            position: relative; width: 100%; height: 100%; padding: 0 28px;
+            display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; flex: 1 1 0; min-width: 0; }
+        .nav-left  { justify-content: flex-start; }
+        .nav-right { justify-content: flex-end; }
+        .nav-title {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+            color: #fff; font-size: 1.6rem; font-weight: 800; letter-spacing: .02em;
+            white-space: nowrap; pointer-events: none;
+        }
+        .nav-icon {
+            width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+            background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.14);
+            color: #fff; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .nav-pill {
+            display: flex; align-items: center; gap: 10px; padding: .55rem .9rem;
+            border-radius: 999px; border: 1px solid rgba(255,255,255,.24);
+            background: rgba(255,255,255,.08); color: #fff; backdrop-filter: blur(8px);
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .nav-pill-brand { font-weight: 800; letter-spacing: .03em; }
+        .redbus-nav { background-color: #1A2F57; border-bottom: 4px solid #3D7AE6; padding: 18px 0; }
+        .color-navy { color: #1F3763; }
+        .color-royal { color: #3D7AE6; }
+        .color-muted-blue { color: #8FAED6; }
+        .confirmation-card { background: #ffffff; border: 2px solid #e9ecef; border-radius: 12px; transition: all 0.3s ease; }
+        .confirmation-card:hover { box-shadow: 0 6px 18px rgba(31, 55, 99, 0.12); border-color: #8FAED6; }
+        .card-ribbon { background-color: #1F3763; color: #ffffff; border-radius: 10px 10px 0 0; padding: 16px 24px; }
+        .btn-royal { background-color: #3D7AE6; color: white; font-weight: 600; border-radius: 6px; }
+        .btn-royal:hover { background-color: #1F3763; color: white; }
+        .btn-outline-navy { border: 2px solid #1F3763; color: #1F3763; font-weight: 600; border-radius: 6px; }
+        .btn-outline-navy:hover { background-color: #1F3763; color: white; }
+        .success-icon { font-size: 4rem; color: #28a745; }
+        .detail-label { font-weight: 600; font-size: 0.85rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; }
+        .detail-value { font-weight: 700; font-size: 1.1rem; color: #1F3763; }
+        .fare-highlight { background-color: #e8f4fd; border: 1px solid #3D7AE6; border-radius: 8px; padding: 16px; }
+        .divider { border-top: 2px dashed #e9ecef; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <div class="nav-left" aria-hidden="true">
+            <div class="nav-icon"><i class="fa-solid fa-plane-up"></i></div>
+        </div>
+        <div class="nav-title">Booking Confirmation</div>
+        <div class="nav-right">
+            <a href="/booking/details/index.html" class="nav-pill text-decoration-none me-2">
+                <i class="fa-solid fa-suitcase-rolling"></i><span>Manage Booking</span>
+            </a>
+            <div class="nav-pill d-none d-md-inline-flex">
+                <span class="nav-pill-brand">ARFOMS</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-4 page-content">
+    <div class="text-center mb-4">
+        <i class="fa-solid fa-circle-check success-icon mb-3"></i>
+        <h3 class="fw-bold color-navy">Booking Confirmed!</h3>
+        <p class="text-muted">Your flight to <span id="destinationHeading" class="fw-semibold color-royal">your destination</span> has been booked successfully. Details are shown below.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="confirmation-card mb-4">
+                <div class="card-ribbon d-flex justify-content-between align-items-center">
+                    <span><strong class="color-muted-blue">PNR Reference:</strong> <span id="pnr">-</span></span>
+                    <span class="badge bg-success fs-6" id="status">-</span>
+                </div>
+
+                <div class="p-4">
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <span class="detail-label">Airline</span>
+                            <div class="detail-value" id="airline">-</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="detail-label">Flight Type</span>
+                            <div class="detail-value" id="flightType">-</div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="row align-items-center text-center mb-3">
+                        <div class="col-4">
+                            <span class="detail-label">From</span>
+                            <div class="detail-value fs-4" id="fromLocation">-</div>
+                            <small class="text-muted">Origin</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="color-royal"><i class="fa-solid fa-plane"></i></div>
+                            <small class="text-muted">Non-stop</small>
+                        </div>
+                        <div class="col-4">
+                            <span class="detail-label">To</span>
+                            <div class="detail-value fs-4" id="toLocation">-</div>
+                            <small class="text-muted">Destination</small>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <span class="detail-label">Travel Date</span>
+                            <div class="detail-value"><i class="fa-solid fa-calendar-days me-1 color-royal"></i><span id="flyDate">-</span></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="detail-label">Seat</span>
+                            <div class="detail-value"><i class="fa-solid fa-chair me-1 color-royal"></i><span id="seat">-</span></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="detail-label">Passengers</span>
+                            <div class="detail-value"><i class="fa-solid fa-users me-1 color-royal"></i><span id="passengers">-</span></div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div id="passengerDetailsBlock" class="mb-3 d-none">
+                        <span class="detail-label">Passenger Details</span>
+                        <div class="table-responsive mt-2">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                <tr><th>#</th><th>Name</th><th>Age</th><th>Gender</th><th>Contact</th></tr>
+                                </thead>
+                                <tbody id="passengerRows"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="fare-highlight text-center">
+                        <span class="detail-label">Total Fare</span>
+                        <div class="fs-3 fw-bold text-success" id="fare">-</div>
+                        <small class="text-muted">Inclusive of all taxes & surcharges</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mb-5">
+                <a href="/booking/details/index.html" class="btn btn-royal px-4 py-2">
+                    <i class="fa-solid fa-suitcase-rolling me-2"></i>Manage Booking
+                </a>
+                <a href="/booking/index.html" class="btn btn-outline-navy px-4 py-2">
+                    <i class="fa-solid fa-magnifying-glass me-2"></i>Search More Flights
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE = "http://localhost:8210/api/bookings";
+
+    function getQueryParam(name) {
+        return new URLSearchParams(window.location.search).get(name);
+    }
+
+    function text(id, value) {
+        document.getElementById(id).textContent = (value == null || value === "") ? "-" : value;
+    }
+
+    async function loadBooking() {
+        const bookingId = getQueryParam("bookingId");
+        const cachedBooking = JSON.parse(sessionStorage.getItem("lastBooking") || "null");
+        const draft = JSON.parse(sessionStorage.getItem("selectedFlight") || "{}");
+
+        let b = null;
+        if (!bookingId) {
+            if (cachedBooking) b = cachedBooking;
+        } else {
+            try {
+                const res = await apiFetch(`${API_BASE}/${bookingId}`);
+                if (!res.ok) throw new Error("Failed to load booking");
+                b = await res.json();
+            } catch (err) {
+                console.error(err);
+                if (cachedBooking && (cachedBooking.bookingId == bookingId || cachedBooking.id == bookingId)) {
+                    b = cachedBooking;
+                } else {
+                    alert("Unable to load booking details.");
+                    return;
+                }
+            }
+        }
+
+        if (b) {
+            let flightInfo = draft;
+            if (!flightInfo.flightId && b.flightId) {
+                try {
+                    const flightRes = await apiFetch(`http://localhost:8210/api/flights/${b.flightId}`);
+                    if (flightRes.ok) {
+                        const f = await flightRes.json();
+                        flightInfo = {
+                            airline: f.flightNumber,
+                            fromLocation: f.origin,
+                            toLocation: f.destination,
+                            flyDate: f.departureTime ? f.departureTime.split('T')[0] : ''
+                        };
+                    }
+                } catch(e) { console.error(e); }
+            }
+
+            const merged = {
+                pnr: b.pnr,
+                status: b.bookingStatus || b.status,
+                airline: flightInfo.airline || flightInfo.flightNumber,
+                flightType: flightInfo.flightType || 'Domestic',
+                fromLocation: flightInfo.fromLocation || flightInfo.origin,
+                toLocation: flightInfo.toLocation || flightInfo.destination,
+                flyDate: flightInfo.flyDate || flightInfo.departureDate,
+                seat: b.seatNumber || b.seat,
+                passengers: 1,
+                fare: b.fareAmount || b.fare,
+                passengerDetails: [
+                    {
+                        fullName: b.passengerName,
+                        seat: b.seatNumber || b.seat
+                    }
+                ]
+            };
+            render(merged);
+        }
+    }
+
+    function render(b) {
+        // 1) PNR generated by the service class
+        text("pnr", b.pnr);
+        // Show the booking status (defaults to CONFIRMED) on the opposite side of the PNR
+        document.getElementById("status").textContent = (b.status && b.status !== "") ? b.status : "CONFIRMED";
+        text("airline", b.airline);
+        text("flightType", b.flightType);
+        text("fromLocation", b.fromLocation);
+        // 2) Destination chosen by the user
+        text("toLocation", b.toLocation);
+        const destHeading = document.getElementById("destinationHeading");
+        if (destHeading) destHeading.textContent = (b.toLocation && b.toLocation !== "") ? b.toLocation : "your destination";
+        text("flyDate", b.flyDate || b.departureDate);
+        text("seat", b.seat);
+        text("passengers", b.passengers);
+        document.getElementById("fare").textContent = (b.fare != null && b.fare !== 0) ? "₹" + b.fare : "-";
+
+        // 3) Passenger details entered by the user
+        const block = document.getElementById("passengerDetailsBlock");
+        const rows = document.getElementById("passengerRows");
+        rows.innerHTML = "";
+        const passengers = Array.isArray(b.passengerDetails) ? b.passengerDetails : [];
+        if (passengers.length > 0) {
+            block.classList.remove("d-none");
+            passengers.forEach((p, i) => {
+                const tr = document.createElement("tr");
+                const contact = (p.phone && p.phone !== "") ?
+                 p.phone : (p.email || "");
+                tr.innerHTML = `<td>${i + 1}</td><td>${p.fullName || ""}</td><td>${p.age || ""}</td><td>${p.gender || ""}</td><td>${contact}</td>`;
+                rows.appendChild(tr);
+            });
+        } else {
+            block.classList.add("d-none");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadBooking);
+</script>
+<script src="../arfoms-header.js" data-title="Booking Confirmation"></script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>
+ 

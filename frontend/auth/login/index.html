@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+       <meta charset="UTF-8" />
+       <meta name="viewport" content="width=device-width, initial-scale=1" />
+       <title>ARFOMS · Sign In</title>
+       <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+       />
+       <link
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          rel="stylesheet"
+       />
+       <link
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+       />
+       <style>
+          :root {
+             --brand-start: #0b1f5e;
+             --brand-end: #2563eb;
+             --ink: #0f172a;
+          }
+          * { box-sizing: border-box; }
+          body {
+             min-height: 100vh;
+             margin: 0;
+             font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+             background: #eef2f9;
+          }
+          /* Top header banner */
+          .top-header {
+             background: linear-gradient(135deg, #0f172a 0%, #0b1f5e 100%);
+             padding: 18px 32px;
+             text-align: center;
+             box-shadow: 0 4px 20px rgba(2, 6, 23, 0.4);
+          }
+          .top-header h1 { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: 1.5px; margin: 0; }
+          .top-header p { font-size: 0.82rem; color: rgba(255,255,255,.6); margin: 0; }
+          /* Login card */
+          .login-card {
+             width: 100%;
+             max-width: 420px;
+             margin: 56px auto 0;
+             background: #fff;
+             border-radius: 18px;
+             box-shadow: 0 24px 60px rgba(2, 6, 23, 0.18);
+             padding: 40px 36px;
+          }
+          .login-card .badge-logo {
+             width: 54px; height: 54px; border-radius: 14px; margin: 0 auto 16px;
+             background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+             display: grid; place-items: center; color: #fff; font-size: 1.3rem;
+          }
+          .login-card h2 { font-weight: 700; color: var(--ink); text-align: center; }
+          .login-card .sub { color: #64748b; font-size: .88rem; text-align: center; margin-bottom: 26px; }
+          .form-label { font-weight: 600; font-size: .82rem; color: #334155; }
+          .form-control, .form-select { padding: .7rem .9rem; border-radius: 10px; border-color: #e2e8f0; }
+          .form-control:focus, .form-select:focus { border-color: var(--brand-end); box-shadow: 0 0 0 .2rem rgba(37,99,235,.15); }
+          .input-icon { position: relative; }
+          .input-icon i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+          .input-icon input { padding-left: 40px; }
+          .btn-signin {
+             background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+             border: none; padding: .75rem; font-weight: 600; border-radius: 10px;
+          }
+          .btn-signin:hover { filter: brightness(1.07); }
+          .btn-signin:disabled { opacity: 0.7; cursor: not-allowed; }
+          .footnote { font-size: .78rem; color: #94a3b8; text-align: center; margin-top: 22px; }
+
+          /* ===== Role selection step ===== */
+          .auth-wrap { padding: 0 16px 48px; }
+          .panel { margin: 56px auto 0; animation: fadeIn .35s ease; }
+          #rolePanel { max-width: 840px; }
+          .panel-head { text-align: center; margin-bottom: 30px; }
+          .panel-head .badge-logo {
+             width: 54px; height: 54px; border-radius: 14px; margin: 0 auto 16px;
+             background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+             display: grid; place-items: center; color: #fff; font-size: 1.3rem;
+          }
+          .panel-head h2 { font-weight: 700; color: var(--ink); margin: 0; }
+          .panel-head .sub { color: #64748b; font-size: .9rem; margin: 4px 0 0; }
+
+          .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+          .role-card {
+             background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+             padding: 26px 18px; text-align: center; cursor: pointer;
+             display: flex; flex-direction: column; align-items: center; gap: 6px;
+             box-shadow: 0 10px 30px rgba(2, 6, 23, .06);
+             transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+             background: none;
+             border: none;
+          }
+          .role-card:hover { transform: translateY(-4px); border-color: var(--brand-end); box-shadow: 0 18px 42px rgba(37, 99, 235, .16); }
+          .role-card:focus { outline: none; }
+          .role-card .role-ic {
+             width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center;
+             font-size: 1.4rem; color: #fff; margin-bottom: 8px;
+             background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+          }
+          .role-card .role-name { font-weight: 700; color: var(--ink); font-size: 1rem; }
+          .role-card .role-desc { color: #64748b; font-size: .8rem; line-height: 1.35; }
+
+          /* ===== Credentials step ===== */
+          .back-link {
+             background: none; border: none; color: #64748b; font-weight: 600; font-size: .82rem;
+             display: inline-flex; align-items: center; gap: 8px; padding: 0; margin-bottom: 18px; cursor: pointer;
+          }
+          .back-link:hover { color: var(--brand-end); }
+          .role-chip {
+             display: inline-flex; align-items: center; gap: 10px;
+             background: #eff4ff; border: 1px solid #dbe6ff; border-radius: 999px;
+             padding: 6px 16px 6px 6px; margin-bottom: 14px;
+          }
+          .role-chip .chip-ic {
+             width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+             background: linear-gradient(135deg, var(--brand-start), var(--brand-end)); color: #fff; font-size: .78rem;
+          }
+          .role-chip .chip-name { font-weight: 700; color: var(--ink); font-size: .85rem; }
+
+          @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+          @media (max-width: 767.98px) { .role-grid { grid-template-columns: repeat(2, 1fr); } }
+          @media (max-width: 479.98px) { .role-grid { grid-template-columns: 1fr; } }
+       </style>
+    </head>
+    <body>
+       <header class="top-header">
+          <h1>ARFOMS</h1>
+          <p>Airline Reservation &amp; Flight Operations Management System</p>
+       </header>
+
+       <main class="auth-wrap">
+          <!-- STEP 1: Choose a role -->
+          <section id="rolePanel" class="panel">
+             <div class="panel-head">
+                <div class="badge-logo"><i class="fa-solid fa-plane-up"></i></div>
+                <h2>Select your role</h2>
+                <p class="sub">Choose your terminal to continue</p>
+             </div>
+
+             <div class="role-grid">
+                <button type="button" class="role-card" data-role="Flight Scheduler" data-user="scheduler" onclick="selectRole(this)">
+                   <span class="role-ic"><i class="fa-solid fa-calendar-days"></i></span>
+                   <span class="role-name">Flight Scheduler</span>
+                   <span class="role-desc">Schedule &amp; fare management</span>
+                </button>
+                <button type="button" class="role-card" data-role="Reservation Agent" data-user="agent" onclick="selectRole(this)">
+                   <span class="role-ic"><i class="fa-solid fa-ticket"></i></span>
+                   <span class="role-name">Reservation Agent</span>
+                   <span class="role-desc">Search &amp; book flights</span>
+                </button>
+                <button type="button" class="role-card" data-role="Crew Manager" data-user="crew" onclick="selectRole(this)">
+                   <span class="role-ic"><i class="fa-solid fa-user-group"></i></span>
+                   <span class="role-name">Crew Manager</span>
+                   <span class="role-desc">Roster &amp; duty schedules</span>
+                </button>
+                <button type="button" class="role-card" data-role="Loyalty Manager" data-user="loyalty" onclick="selectRole(this)">
+                   <span class="role-ic"><i class="fa-solid fa-award"></i></span>
+                   <span class="role-name">Loyalty Manager</span>
+                   <span class="role-desc">Tiers, miles &amp; rewards</span>
+                </button>
+                <button type="button" class="role-card" data-role="Admin" data-user="admin" onclick="selectRole(this)">
+                   <span class="role-ic"><i class="fa-solid fa-user-shield"></i></span>
+                   <span class="role-name">Admin</span>
+                   <span class="role-desc">System administration</span>
+                </button>
+                <button type="button" class="role-card" data-role="Ground Staff" data-user="groundstaff" onclick="selectRole(this)">
+                   <span class="role-ic"><i class="fa-solid fa-people-carry-box"></i></span>
+                   <span class="role-name">Ground Staff</span>
+                   <span class="role-desc">Ground operations</span>
+                </button>
+             </div>
+          </section>
+
+          <!-- STEP 2: Enter credentials for the chosen role -->
+          <section id="credPanel" class="panel login-card" style="display: none;">
+             <button type="button" class="back-link" onclick="backToRoles()"><i class="fa-solid fa-arrow-left"></i> Change role</button>
+             <div class="text-center">
+                <div class="role-chip">
+                   <span class="chip-ic" id="chipIc"><i class="fa-solid fa-user"></i></span>
+                   <span class="chip-name" id="chipName">Role</span>
+                </div>
+             </div>
+             <h2>Sign in</h2>
+             <p class="sub">Enter your <span id="roleSubName">role</span> credentials</p>
+
+             <form id="loginForm">
+                <input type="hidden" id="role" />
+                <input type="hidden" id="username" />
+                <div class="mb-3">
+                   <label class="form-label" for="password">Password</label>
+                   <div class="input-icon">
+                      <i class="fa-solid fa-lock"></i>
+                      <input class="form-control" type="password" id="password" placeholder="Enter your password" required />
+                   </div>
+                </div>
+                <button class="btn btn-primary btn-signin w-100" type="submit">
+                   <i class="fa-solid fa-right-to-bracket me-2"></i>Sign In
+                </button>
+                <div id="loginError" class="alert alert-danger py-2 mt-3 d-none" role="alert"></div>
+             </form>
+             <p class="footnote">Authorised personnel only · &copy; ARFOMS 2026</p>
+          </section>
+       </main>
+
+       <script>
+          // Per-role metadata: icon, destination page, and login username
+          const roleMeta = {
+             'Flight Scheduler': { icon: 'fa-calendar-days', dest: '../flight/index.html', user: 'scheduler' },
+             'Reservation Agent': { icon: 'fa-ticket', dest: '../booking/details/index.html', user: 'agent' },
+             'Crew Manager': { icon: 'fa-user-group', dest: '../crew/index.html', user: 'crew' },
+             'Loyalty Manager': { icon: 'fa-award', dest: '../loyalty/index.html', user: 'loyalty' },
+             'Admin': { icon: 'fa-user-shield', dest: '../dashboard.html', user: 'admin' },
+             'Ground Staff': { icon: 'fa-people-carry-box', dest: '../checkin/search.html', user: 'groundstaff' },
+          };
+
+          const rolePanel = document.getElementById('rolePanel');
+          const credPanel = document.getElementById('credPanel');
+
+          function selectRole(btn) {
+            const role = btn.dataset.role;
+            const user = btn.dataset.user;
+            const meta = roleMeta[role] || {};
+            document.getElementById('role').value = role;
+            document.getElementById('username').value = user;
+            document.getElementById('password').value = '';
+            document.getElementById('chipName').textContent = role;
+            document.getElementById('roleSubName').textContent = role;
+            document.getElementById('chipIc').innerHTML = '<i class="fa-solid ' + (meta.icon || 'fa-user') + '"></i>';
+            rolePanel.style.display = 'none';
+            credPanel.style.display = 'block';
+            document.getElementById('password').focus();
+          }
+
+          function backToRoles() {
+             credPanel.style.display = 'none';
+             rolePanel.style.display = 'block';
+             document.getElementById('loginForm').reset();
+          }
+
+          document.getElementById('loginForm').addEventListener('submit', async (e) => {
+             e.preventDefault();
+
+             const errorBox = document.getElementById('loginError');
+             const submitBtn = document.querySelector('.btn-signin');
+             errorBox.classList.add('d-none');
+             submitBtn.disabled = true;
+             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Authenticating...';
+
+             const role = document.getElementById('role').value;
+             const username = document.getElementById('username').value;
+             const password = document.getElementById('password').value;
+             const meta = roleMeta[role];
+
+             try {
+                // Hit auth-service first so login still works without the gateway.
+                let res = await fetch('http://localhost:8180/api/auth/login', {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({ username, password }),
+                   credentials: 'include',
+                   mode: 'cors'
+                }).catch(err => {
+                   console.warn('auth-service failed, trying API Gateway');
+                   return fetch('http://localhost:8210/api/auth/login', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ username, password }),
+                      credentials: 'include',
+                      mode: 'cors'
+                   });
+                });
+
+                if (!res.ok) {
+                   throw new Error('HTTP ' + res.status + ': ' + res.statusText);
+                }
+
+                const data = await res.json();
+
+                if (data.token) {
+                    localStorage.setItem('arfoms_token', data.token);
+                    localStorage.setItem('arfoms_role', role);
+                    localStorage.setItem('arfoms_user', username);
+                    localStorage.setItem('arfoms_name', username);
+                    
+                    // Redirect to role-specific page
+                    setTimeout(() => {
+                       window.location.href = (meta && meta.dest) || '../index.html';
+                    }, 500);
+                } else {
+                   throw new Error(data.message || 'No token received from server');
+                }
+             } catch (err) {
+                console.error('Login error:', err);
+                errorBox.textContent = 'Login failed: ' + (err.message || 'Unable to reach the server. Make sure backend services are running.');
+                errorBox.classList.remove('d-none');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket me-2"></i>Sign In';
+             }
+          });
+       </script>
+    </body>
+</html>

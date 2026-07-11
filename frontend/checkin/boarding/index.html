@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gate Boarding - ARFOMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-deep: #020617;
+            --primary-mid: #0b1f5e;
+            --primary-vivid: #1d4ed8;
+            --neutral-dark: #0f172a;
+            --surface-bg: #f8fafc;
+            --card-white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-success: #22c55e;
+            --accent-warn: #f59e0b;
+            --border-subtle: #e2e8f0;
+        }
+        body { background: var(--surface-bg); color: var(--text-primary); }
+        .app-header { background: var(--primary-deep); border-bottom: 1px solid var(--primary-mid); }
+        .app-sidebar { background: var(--primary-mid); border-color: var(--primary-deep); }
+        .logo-mark { background: var(--primary-vivid); }
+        .nav-link {
+            display: flex; width: 100%; align-items: center; border-left: 4px solid transparent;
+            border-radius: 0.5rem; padding: 0.75rem 1rem; text-align: left; font-weight: 500;
+            color: rgb(219 234 254 / 0.8); transition: all 150ms ease;
+        }
+        .nav-link:hover { background: rgb(255 255 255 / 0.1); color: #ffffff; }
+        .nav-link.active { border-left-color: var(--accent-warn); background: rgb(255 255 255 / 0.15); color: #ffffff; }
+        .card { background: var(--card-white); border: 1px solid var(--border-subtle); border-radius: 0.75rem; box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
+    </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col">
+    <header class="app-header text-white shadow-md">
+        <div class="w-full px-6 py-4 flex items-center justify-between">
+            <a href="/checkin/search/index.html" class="flex items-center space-x-3">
+                <div class="logo-mark flex h-11 w-11 items-center justify-center rounded-xl shadow-lg shadow-blue-950/30 ring-1 ring-white/10">
+                    <i class="fa-solid fa-plane-up text-xl text-white"></i>
+                </div>
+                <div class="leading-tight">
+                    <span class="block text-2xl font-extrabold tracking-wider uppercase">ARFOMS</span>
+                    <span class="block text-xs font-semibold uppercase tracking-[0.25em] text-blue-200">Airline Ops</span>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <div class="flex flex-1 flex-col md:flex-row">
+        <nav class="app-sidebar border-b shadow-sm md:w-72 md:min-h-[calc(100vh-73px)] md:border-b-0 md:border-r md:sticky md:top-0 md:self-start">
+            <div class="p-4 space-y-2">
+                <p class="px-4 pb-2 text-xs font-bold uppercase tracking-wider text-blue-200/80">Navigation</p>
+                <a href="/checkin/search/index.html" class="nav-link"><i class="fa-solid fa-magnifying-glass mr-2"></i>1. Passenger Search</a>
+                <a href="/checkin/index.html" class="nav-link"><i class="fa-solid fa-suitcase mr-2"></i>2. Check-In & Baggage</a>
+                <a href="/checkin/boarding/index.html" class="nav-link active"><i class="fa-solid fa-id-card-clip mr-2"></i>3. Gate Boarding</a>
+                <a href="/checkin/manifest.html" class="nav-link"><i class="fa-solid fa-list-check mr-2"></i>4. Manifest & Offload</a>
+            </div>
+        </nav>
+
+        <div class="flex min-w-0 flex-1 flex-col">
+            <main class="w-full max-w-7xl mx-auto px-6 py-8 flex-grow space-y-6">
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="card p-5 flex items-center justify-between">
+                        <div>
+                            <span class="text-sm font-medium text-slate-500">Active Gate Session</span>
+                            <h1 id="metric-checked-in" class="text-2xl font-bold text-slate-800 mt-1">1 Passenger</h1>
+                        </div>
+                        <div class="w-12 h-12 bg-[var(--surface-bg)] rounded-full flex items-center justify-center text-[var(--primary-mid)]"><i class="fa-solid fa-users text-xl"></i></div>
+                    </div>
+                    <div class="card p-5 flex items-center justify-between">
+                        <div>
+                            <span class="text-sm font-medium text-slate-500">Successfully Boarded</span>
+                            <h2 id="metric-boarded" class="text-2xl font-bold text-[var(--accent-success)] mt-1">0 / 1</h2>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-[var(--accent-success)]"><i class="fa-solid fa-circle-check text-xl"></i></div>
+                    </div>
+                    <div class="card p-5 flex items-center justify-between">
+                        <div>
+                            <span class="text-sm font-medium text-slate-500">Remaining to Board</span>
+                            <h2 id="metric-remaining" class="text-2xl font-bold text-[var(--accent-warn)] mt-1">1 Remaining</h2>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-[var(--accent-warn)]"><i class="fa-solid fa-hourglass-half text-xl"></i></div>
+                    </div>
+                </section>
+
+                <section class="card overflow-hidden">
+                    <div class="px-6 py-4 border-b border-[var(--border-subtle)]">
+                        <h2 class="font-bold text-slate-800">Live Departure Boarding Monitor</h2>
+                    </div>
+                    <div id="queue-container" class="divide-y divide-slate-100">
+                        <div class="p-6 text-center text-slate-400 text-sm">Resolving gate queue vectors...</div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        // Fallback default back tracking parameter checks safely matching active operations
+        let bookingId = urlParams.get('bookingId') || "1"; 
+
+        window.addEventListener('DOMContentLoaded', fetchActivePassengerQueue);
+
+        async function fetchActivePassengerQueue() {
+            const container = document.getElementById('queue-container');
+            try {
+                // Fetch the booking lookup result first
+                const response = await apiFetch(`http://localhost:8210/api/checkin/booking/${bookingId}`);
+                if (!response.ok) throw new Error('Data transmission drop tracked.');
+                
+                const lookup = await response.json();
+                const booking = lookup.booking || {};
+                const flight = lookup.flight || {};
+                
+                let isBoarded = false;
+                let checkInId = lookup.existingCheckInId;
+                
+                if (lookup.alreadyCheckedIn && checkInId) {
+                    const checkInRes = await apiFetch(`http://localhost:8210/api/checkin/${checkInId}`);
+                    if (checkInRes.ok) {
+                        const checkInData = await checkInRes.json();
+                        isBoarded = (checkInData.checkInStatus === 'BOARDED');
+                    }
+                } else {
+                    container.innerHTML = `<div class="p-6 text-center text-amber-500 text-sm">Passenger not checked in yet.</div>`;
+                    return;
+                }
+
+                updateMetrics(1, isBoarded ? 1 : 0);
+
+                container.innerHTML = `
+                    <div class="p-4 px-6 flex justify-between items-center ${isBoarded ? 'bg-green-50/40' : ''}">
+                        <div class="flex items-center space-x-4">
+                            <span class="w-8 h-8 rounded-full ${isBoarded ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'} flex items-center justify-center font-bold text-xs">001</span>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">${escapeHtml(booking.passengerName || 'Active Test Passenger')}</h3>
+                                <p class="text-xs text-slate-500 font-mono">Seat ${escapeHtml(booking.seatNumber || 'N/A')} | Flight ${escapeHtml(flight.flightNumber || 'N/A')}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-6">
+                            <span class="text-xs text-slate-400">${isBoarded ? 'Scanned successfully' : 'Waiting at gate'}</span>
+                            ${isBoarded 
+                                ? `<span class="px-2.5 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full uppercase tracking-wider"><i class="fa-solid fa-plane-arrival mr-1"></i>Boarded</span>`
+                                : `<button onclick="boardPassenger(${checkInId})" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"><i class="fa-solid fa-ticket mr-1"></i>Board Passenger</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<div class="p-6 text-center text-red-500 text-sm">Error updating live data layers.</div>`;
+            }
+        }
+
+        async function boardPassenger(checkInId) {
+            try {
+                const response = await apiFetch(`http://localhost:8210/api/checkin/${checkInId}/board`, {
+                    method: 'PATCH'
+                });
+                if (response.ok) {
+                    alert('Passenger successfully checked into BOARDED tracking profile status!');
+                    fetchActivePassengerQueue();
+                } else {
+                    alert('Boarding error encountered on database layers.');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function updateMetrics(total, boarded) {
+            document.getElementById('metric-checked-in').textContent = `${total} Passenger`;
+            document.getElementById('metric-boarded').textContent = `${boarded} / ${total}`;
+            document.getElementById('metric-remaining').textContent = `${total - boarded} Remaining`;
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+        }
+    </script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>

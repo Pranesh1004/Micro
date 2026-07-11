@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ARFOMS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/js/auth.js"></script>
+    <style>
+        :root {
+          --titlebar-grad-start: #030712;
+          --titlebar-grad-mid-1: #0a2540;
+          --titlebar-grad-mid-2: #1e3a8a;
+          --titlebar-grad-end:   #2563eb;
+          --titlebar-gradient: linear-gradient(90deg, var(--titlebar-grad-start) 0%, var(--titlebar-grad-mid-1) 32%, var(--titlebar-grad-mid-2) 64%, var(--titlebar-grad-end) 100%);
+          --color-sidebar-start: #0a2540;
+          --color-sidebar-end: #030712;
+          --color-content-bg: #f7f9fc;
+          --color-text-on-dark: #ffffff;
+          --color-text-muted-dark: #cbd5e1;
+          --color-accent: #3D7AE6;
+          --color-accent-soft: rgba(61, 122, 230, 0.16);
+          --sidebar-width: 280px;
+          --topbar-height: 72px;
+          --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+          --radius: 8px;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body, h1, h2, h3, h4, p, figure { margin: 0; }
+        a { text-decoration: none; color: inherit; }
+        img, svg { display: block; max-width: 100%; }
+        button { font: inherit; cursor: pointer; }
+        body {
+          background-color: var(--color-content-bg);
+          color: #1A2F57;
+          font-family: var(--font-sans);
+          font-size: 0.95rem;
+          line-height: 1.55;
+          letter-spacing: -0.005em;
+          -webkit-font-smoothing: antialiased;
+        }
+        .topbar {
+          position: fixed; top: 0; left: 0; right: 0; width: 100%; height: var(--topbar-height);
+          background: var(--titlebar-gradient); color: var(--color-text-on-dark);
+          display: flex; align-items: center; justify-content: space-between; padding: 0 28px; z-index: 1040;
+        }
+        .topbar .titlebar-text { display: flex; flex-direction: column; gap: 2px; }
+        .topbar .app-title { color: var(--color-text-on-dark); font-weight: 700; font-size: 1.35rem; letter-spacing: 0.02em; line-height: 1.1; }
+        .topbar .app-subtitle { color: var(--color-text-muted-dark); font-weight: 500; font-size: 0.85rem; }
+        .sidebar {
+          position: fixed; top: var(--topbar-height); left: 0; height: calc(100vh - var(--topbar-height)); width: var(--sidebar-width);
+          background: linear-gradient(180deg, var(--color-sidebar-start), var(--color-sidebar-end)); color: var(--color-text-on-dark);
+          padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; z-index: 1030;
+        }
+        .sidebar .nav-link { display: flex; align-items: center; gap: 12px; color: var(--color-text-muted-dark); font-weight: 500; font-size: 0.9rem; padding: 12px 16px; border-radius: var(--radius); margin-bottom: 4px; transition: background-color 0.15s ease, color 0.15s ease; }
+        .sidebar .nav-link .nav-icon { width: 18px; height: 18px; flex: 0 0 18px; border-radius: 4px; border: 1px solid currentColor; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; line-height: 1; opacity: 0.65; }
+        .sidebar .nav-link:hover { color: var(--color-text-on-dark); background-color: rgba(255, 255, 255, 0.06); }
+        .sidebar .nav-link.active { color: var(--color-accent); background-color: var(--color-accent-soft); }
+        .sidebar .nav-link.active .nav-icon { background: #ffffff; border-color: #ffffff; opacity: 1; }
+        .sidebar .nav-link.active .nav-icon::before { content: "✈"; color: var(--color-accent); }
+        .main-content { margin-left: var(--sidebar-width); margin-top: var(--topbar-height); min-height: calc(100vh - var(--topbar-height)); padding: 32px; background-color: var(--color-content-bg); }
+        @media (max-width: 768px) {
+          .topbar { position: static; left: 0; }
+          .sidebar { position: static; width: 100%; height: auto; flex-direction: column; }
+          .main-content { margin-left: 0; padding: 16px; margin-top: 0; }
+        }
+        .card { background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .card h4 { font-weight: 600; font-size: 1.2rem; color: #1A2F57; letter-spacing: -0.01em; }
+        label { color: #1A2F57; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
+        .form-control, .form-select { background-color: #ffffff; border: 1px solid #cbd5e1; color: #1A2F57; font-size: 0.875rem; padding: 10px 14px; border-radius: 6px; }
+        .btn-custom { background: linear-gradient(90deg, #3D7AE6, #1F3763); color: white; border: none; font-weight: 500; font-size: 0.875rem; padding: 10px 22px; border-radius: 6px; }
+        .btn-custom:hover { opacity: 0.95; color: white; }
+        .btn-secondary-custom { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-weight: 500; font-size: 0.875rem; padding: 10px 22px; border-radius: 6px; }
+        table th { background: linear-gradient(90deg, #3D7AE6, #1F3763); color: #ffffff !important; border: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; padding: 14px 16px !important; }
+        table thead th, .table thead th { color: #ffffff !important; --bs-table-color: #ffffff; }
+        table td { background-color: #ffffff; color: #1A2F57; font-size: 0.875rem; padding: 14px 16px !important; border-bottom: 1px solid #f1f5f9; }
+        .quick-edit-panel { background-color: #f8fafc; border-left: 4px solid #3D7AE6; }
+        .app-page { display: none; }
+        .app-page.active-page { display: block; }
+    </style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="titlebar-text">
+        <span class="app-title">ARFOMS</span>
+        <span class="app-subtitle">Flight Schedule and Fare Management</span>
+    </div>
+</header>
+
+<aside class="sidebar">
+    <nav class="nav flex-column">
+        <a class="nav-link active" id="nav-details" href="#" onclick="switchPage('page-details')"><span class="nav-icon"></span> Details</a>
+        <a class="nav-link" id="nav-add" href="#" onclick="switchPage('page-add-flight')"><span class="nav-icon"></span> Add Flight</a>
+        <a class="nav-link" id="nav-update" href="#" onclick="switchPage('page-update-flight')"><span class="nav-icon"></span> Update Flight</a>
+        <a class="nav-link" id="nav-remove" href="#" onclick="switchPage('page-remove-flight')"><span class="nav-icon"></span> Remove Flight</a>
+    </nav>
+</aside>
+
+<div class="main-content">
+
+    <div id="alert-box" class="alert d-none" role="alert"></div>
+
+    <div id="page-details" class="app-page active-page">
+        <div class="card p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">Operational Flight Details</h4>
+                <button class="btn btn-custom btn-sm" onclick="switchPage('page-add-flight')">Add New Flight</button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span id="result-count" class="text-muted small"></span>
+                <div class="input-group" style="max-width: 380px;">
+                    <input type="text" id="search-input" class="form-control"
+                           placeholder="Search by flight no, origin, or destination..." oninput="renderTable()">
+                    <button type="button" id="clear-search" class="btn btn-secondary-custom" onclick="clearSearch()">Clear</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th style="cursor:pointer;" onclick="sortBy('flightNumber')">Flight No <span class="sort-ind" data-key="flightNumber"></span></th>
+                        <th style="cursor:pointer;" onclick="sortBy('flightName')">Name <span class="sort-ind" data-key="flightName"></span></th>
+                        <th style="cursor:pointer;" onclick="sortBy('origin')">Route <span class="sort-ind" data-key="origin"></span></th>
+                        <th style="cursor:pointer;" onclick="sortBy('departureTime')">Departure Time <span class="sort-ind" data-key="departureTime"></span></th>
+                        <th style="cursor:pointer;" onclick="sortBy('arrivalTime')">Arrival Time <span class="sort-ind" data-key="arrivalTime"></span></th>
+                        <th style="cursor:pointer;" onclick="sortBy('economyFare')">Economy (₹) <span class="sort-ind" data-key="economyFare"></span></th>
+                        <th style="cursor:pointer;" onclick="sortBy('premiumFare')">Premium (₹) <span class="sort-ind" data-key="premiumFare"></span></th>
+                        <th style="cursor:pointer;" onclick="sortBy('firstFare')">First Class (₹) <span class="sort-ind" data-key="firstFare"></span></th>
+                        <th style="cursor:pointer;" onclick="sortBy('flightStatus')">Status <span class="sort-ind" data-key="flightStatus"></span></th>
+                    </tr>
+                    </thead>
+                    <tbody id="flights-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-add-flight" class="app-page">
+        <div class="card p-4 shadow-sm">
+            <h4>Add Flight Configuration</h4>
+            <p class="text-muted small mb-4">Input route schedules and standard baseline pricing.</p>
+            <hr class="text-muted">
+            <form id="add-flight-form">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label>Flight Number</label>
+                        <input type="text" name="flightNumber" class="form-control" placeholder="OU-302" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Flight Name</label>
+                        <input type="text" name="flightName" class="form-control" placeholder="Ocean Express" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Origin City</label>
+                        <select name="origin" id="add-origin" class="form-select" required></select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Destination City</label>
+                        <select name="destination" id="add-destination" class="form-select" required></select>
+                        <div id="route-error" class="text-danger small mt-1" style="display:none;">Origin and destination cannot be the same city.</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Departure Date &amp; Time</label>
+                        <input type="datetime-local" name="departureTime" class="form-control" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Arrival Date &amp; Time</label>
+                        <input type="datetime-local" name="arrivalTime" class="form-control" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Economy Fare (₹)</label>
+                        <input type="number" step="0.01" min="0" name="economyFare" class="form-control" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Premium Fare (₹)</label>
+                        <input type="number" step="0.01" min="0" name="premiumFare" class="form-control" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>First Class Fare (₹)</label>
+                        <input type="number" step="0.01" min="0" name="firstFare" class="form-control" required>
+                    </div>
+                </div>
+
+                <hr class="text-muted">
+                <h5 class="mb-1">Seat Declaration</h5>
+                <p class="text-muted small mb-3">Declare the cabin capacity. The layout below is generated from rows &amp; columns.</p>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label>Seat Count</label>
+                        <input type="number" min="1" name="seatCount" id="seat-count" class="form-control" placeholder="e.g. 24" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Rows</label>
+                        <input type="number" min="1" max="26" name="seatRows" id="seat-rows" class="form-control" placeholder="e.g. 6" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Columns</label>
+                        <input type="number" min="1" max="12" name="seatColumns" id="seat-columns" class="form-control" placeholder="e.g. 4" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label>Walkway After Column</label>
+                        <input type="number" min="1" name="seatAisleAfter" id="seat-aisle" class="form-control" placeholder="e.g. 2">
+                        <div class="form-text">The walk space goes between this column and the next.</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Seat Layout Reference</label>
+                    <div class="d-flex flex-wrap gap-3 mb-2 small text-muted">
+                        <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:linear-gradient(135deg,#0f766e,#10b981);vertical-align:middle;"></span> Window seat</span>
+                        <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:linear-gradient(135deg,#3D7AE6,#1F3763);vertical-align:middle;"></span> Aisle / middle seat</span>
+                        <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1px dashed #94a3b8;vertical-align:middle;"></span> Walkway</span>
+                    </div>
+                    <div id="seat-layout-preview" class="border rounded p-3 bg-light text-muted">
+                        Enter rows and columns to preview the seat layout.
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-custom me-2">Save Flight Configuration</button>
+                    <button type="button" class="btn btn-secondary-custom" onclick="switchPage('page-details')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="page-update-flight" class="app-page">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 shadow-sm quick-edit-panel">
+                    <h4 class="mb-2">Schedule &amp; Status Update</h4>
+                    <p class="text-muted small mb-4">Re-calibrate operational timelines and status.</p>
+                    <form id="update-schedule-form">
+                        <div class="mb-3">
+                            <label>Target Flight</label>
+                            <select name="flightNumber" id="schedule-flight-select" class="form-select" required></select>
+                        </div>
+                        <div class="mb-3"><label>Revised Departure Time</label><input type="datetime-local" name="departureTime" class="form-control"></div>
+                        <div class="mb-3"><label>Revised Arrival Time</label><input type="datetime-local" name="arrivalTime" class="form-control"></div>
+                        <div class="mb-4"><label>Flight Status</label><select name="flightStatus" id="schedule-status-select" class="form-select"></select></div>
+                        <button type="submit" class="btn btn-custom w-100">Commit Schedule Update</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card p-4 shadow-sm quick-edit-panel" style="border-left-color: #1F3763;">
+                    <h4 class="mb-2">Fare Class Configuration</h4>
+                    <p class="text-muted small mb-4">Adjust baseline pricing for each fare class.</p>
+                    <form id="set-fares-form">
+                        <div class="mb-3">
+                            <label>Target Flight</label>
+                            <select name="flightNumber" id="fares-flight-select" class="form-select" required></select>
+                        </div>
+                        <div class="mb-3"><label>Economy Fare</label><input type="number" step="0.01" min="0" name="economyFare" class="form-control" required></div>
+                        <div class="mb-3"><label>Premium Fare</label><input type="number" step="0.01" min="0" name="premiumFare" class="form-control" required></div>
+                        <div class="mb-4"><label>First Class Fare</label><input type="number" step="0.01" min="0" name="firstFare" class="form-control" required></div>
+                        <button type="submit" class="btn btn-custom w-100">Commit Fare Updates</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-remove-flight" class="app-page">
+        <div class="card p-4 shadow-sm" style="border-top: 4px solid #dc3545;">
+            <h4 class="text-danger mb-2">Decommission Operational Flight Record</h4>
+            <p class="text-muted small mb-4">Purging tracking numbers is permanent.</p>
+            <form id="delete-flight-form">
+                <div class="row align-items-end">
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <label>Target Record</label>
+                        <select name="flightNumber" id="delete-flight-select" class="form-select" required></select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-danger w-100 py-2 fw-medium">Purge System Record</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="../arfoms-header.js"></script>
+<script src="../arfoms-ui.js"></script>
+
+</body>
+</html>

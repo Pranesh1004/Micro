@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="/js/auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirLine Flight Operations Management System - Portal</title>
+   <link rel="stylesheet" href="crew_roster_management.css">
+</head>
+<body>
+    <header class="app-header">
+        <h2>ARFOMS Portal</h2>
+        <div style="float: right; margin-top: -45px; display: flex; gap: 10px;">
+            <button id="btnBackToPortal" class="btn btn-secondary" style="display: none;">Back to Portal</button>
+            <a href="../dashboard.html" class="btn btn-exit">Exit to Main Dashboard</a>
+        </div>
+    </header>
+ 
+    <main id="gatewayPortal" class="container">
+        <section class="portal-hero">
+            <h1>Welcome to ARFOMS</h1>
+            <p class="portal-subtitle">Please access your terminal.</p>
+        </section>
+       
+        <div class="portal-grid">
+            <button type="button" class="portal-card" onclick="switchState('scheduler-login')">
+                <h3>Crew Scheduler Terminal</h3>
+                <p>Assign flight configurations, execute dynamic swaps, and manage operational duty limits.</p>
+                <span class="portal-badge">Admin Access</span>
+            </button>
+           
+            <button type="button" class="portal-card" onclick="switchState('crew-login')">
+                <h3>Crew Member Self-Service</h3>
+                <p>Instantly retrieve assigned flight patterns, duty schedules, and tracked legal flight hours.</p>
+                <span class="portal-badge">Crew Access</span>
+            </button>
+        </div>
+ 
+        <div id="schedulerLoginForm" class="management-card portal-login-box" style="display: none;">
+            <h3>Scheduler Verification</h3>
+            <div class="form-group">
+                <label for="schedulerPassword">Access Password</label>
+                <input type="password" id="schedulerPassword" placeholder="Enter administrative key...">
+            </div>
+            <button class="btn btn-primary" onclick="verifySchedulerLogin()">Verify & Launch</button>
+        </div>
+ 
+        <div id="crewLoginForm" class="management-card portal-login-box" style="display: none;">
+            <h3>Crew Roster Terminal Identity</h3>
+            <div class="form-group">
+                <label for="portalCrewSearchName">Crew Member Full Name</label>
+                <input type="text" id="portalCrewSearchName" placeholder="e.g., Captain Vikram">
+            </div>
+            <button class="btn btn-secondary" onclick="executeCrewSelfServiceLookup()">Access Roster Logs</button>
+        </div>
+    </main>
+ 
+    <main id="schedulerDashboard" class="container" style="display: none;">
+        <section class="management-card">
+            <h3>Assign Flight Crew Member</h3>
+            <form id="crewAssignmentForm">
+                <div class="form-group">
+                    <label for="crewMemberName">Crew Member Name</label>
+                    <input type="text" id="crewMemberName" required placeholder="e.g., Captain Vikram">
+                </div>
+ 
+                <div class="form-group">
+                    <label for="flightId">Flight ID Mapping</label>
+                    <input type="number" id="flightId" required placeholder="e.g., 101">
+                </div>
+ 
+                <div class="form-group">
+                    <label for="assignedRole">Operational Role</label>
+                    <select id="assignedRole" required>
+                        <option value="">-- Choose Role --</option>
+                        <option value="CAPTAIN">Captain</option>
+                        <option value="FIRST_OFFICER">First Officer</option>
+                        <option value="CABIN_CREW">Cabin Crew</option>
+                    </select>
+                </div>
+ 
+                <div class="form-group">
+                    <label for="assignedDutyHours">Expected Duty Hours</label>
+                    <input type="number" id="assignedDutyHours" required step="0.1" min="0" max="24" placeholder="e.g., 8.5">
+                </div>
+ 
+                <button type="submit" class="btn btn-primary">Commit Assignment</button>
+            </form>
+        </section>
+ 
+        <section class="management-card">
+            <h3>Operational Crew Roster Search</h3>
+            <div class="search-container">
+                <input type="text" id="searchCrewName" placeholder="Search by Crew Member Name...">
+                <button id="btnFetchRoster" class="btn btn-secondary">Fetch Active Roster</button>
+            </div>
+ 
+            <div id="dutyMetricsPanel" class="metrics-panel" style="display: none;">
+                <p><strong>Total Logged Segments:</strong> <span id="metricTotalFlights">0</span></p>
+                <p><strong>Total Accumulated Duty Hours:</strong> <span id="metricTotalHours">0.0</span> hrs</p>
+            </div>
+ 
+            <div class="table-responsive">
+                <table id="crewRosterTable">
+                    <thead>
+                        <tr>
+                            <th>Assignment ID</th>
+                            <th>Flight ID</th>
+                            <th>Assigned Role</th>
+                            <th>Duty Hours</th>
+                            <th>Current Status</th>
+                            <th>Operational Adjustments (Crew Swap)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" class="placeholder-row">Initialize a lookup to populate real-time operational roster items.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+ 
+    <main id="crewMemberDashboard" class="container" style="display: none;">
+        <div class="management-card animate-fade-in">
+            <h3 style="color: var(--primary-vivid);">Operational Flight Pattern</h3>
+            <div id="crewSelfServiceContainer">
+                </div>
+            
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <h3 style="color: var(--primary-vivid);">Active Duty Assignments</h3>
+            <div class="table-responsive">
+                <table id="crewActiveDashboardTable">
+                    <thead>
+                        <tr>
+                            <th>Assignment ID</th>
+                            <th>Role</th>
+                            <th>Duty Hours</th>
+                            <th>Status</th>
+                            <th>Flight Reference ID</th>
+                        </tr>
+                    </thead>
+                    <tbody id="crewActiveDashboardData">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #888;">No active records loaded.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+ 
+    <script src="crew_roster_management.js"></script>
+</body>
+</html>

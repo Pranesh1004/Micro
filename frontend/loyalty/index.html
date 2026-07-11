@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARFOMS Loyalty Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-deep: #020617;
+            --primary-mid: #0b1f5e;
+            --primary-vivid: #1d4ed8;
+
+            --neutral-dark: #0f172a;
+            --surface-bg: #f8fafc;
+            --card-white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-success: #22c55e;
+            --accent-warn: #f59e0b;
+            --border-subtle: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--surface-bg);
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+        }
+
+        h1, h2, h3, h5, h6, th, strong { color: var(--neutral-dark) !important; }
+        p, small, td { color: var(--text-secondary) !important; }
+
+        .gradient-header-bar {
+            background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary-mid) 50%, var(--primary-vivid) 100%);
+            margin-top: -24px;
+            margin-left: -48px;
+            margin-right: -48px;
+            padding: 2rem 3rem;
+            box-shadow: 0 4px 20px rgba(2, 6, 23, 0.15);
+        }
+        .gradient-header-bar h1 { color: var(--card-white) !important; }
+        .gradient-header-bar p { color: rgba(255, 255, 255, 0.8) !important; }
+        .gradient-header-bar .bi-airplane-engines { color: var(--card-white) !important; }
+        .gradient-header-bar .badge { background-color: rgba(255, 255, 255, 0.15) !important; border: 1px solid rgba(255, 255, 255, 0.25); color: var(--card-white) !important;}
+
+        .dashboard-card {
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            background: var(--card-white);
+            box-shadow: 0 4px 12px rgba(2, 6, 23, 0.03);
+        }
+
+        .tier-SILVER {
+            background: linear-gradient(135deg, var(--primary-vivid) 0%, var(--primary-mid) 100%);
+            color: var(--card-white) !important;
+        }
+        .tier-GOLD {
+            background: linear-gradient(135deg, var(--primary-vivid) 0%, var(--primary-deep) 100%);
+            color: var(--card-white) !important;
+        }
+        .tier-PLATINUM {
+            background: linear-gradient(135deg, var(--primary-mid) 0%, var(--primary-deep) 100%);
+            color: var(--card-white) !important;
+        }
+
+        .hero-card { border: none; border-radius: 16px; overflow: hidden; }
+        .hero-card h2, .hero-card h1, .hero-card p, .hero-card span, .hero-card small { color: var(--card-white) !important; }
+        .hero-card .badge { background-color: rgba(255, 255, 255, 0.15) !important; border: 1px solid rgba(255, 255, 255, 0.25); }
+
+        .reward-voucher { border: 2px dashed var(--border-subtle); border-radius: 12px; transition: all 0.2s ease; }
+        .reward-voucher:hover { border-color: var(--primary-vivid); background-color: var(--surface-bg); }
+
+        .icon-box { background-color: var(--surface-bg); color: var(--primary-vivid) !important; border: 1px solid var(--border-subtle); }
+        .bi { color: var(--primary-vivid); }
+
+        .form-control { border: 1px solid var(--border-subtle); color: var(--text-primary); }
+        .form-control:focus { border-color: var(--primary-vivid); box-shadow: 0 0 0 0.25rem rgba(29, 78, 216, 0.1); }
+
+        .btn-vivid { background-color: var(--primary-vivid); color: var(--card-white); border: none; box-shadow: 0 2px 4px rgba(29, 78, 216, 0.2); }
+        .btn-vivid:hover { background-color: var(--primary-mid); color: var(--card-white); }
+        .btn-vivid:disabled { background-color: var(--border-subtle); color: var(--text-secondary); box-shadow: none; }
+
+        .btn-deep { background-color: var(--primary-deep); color: var(--card-white); border: none; }
+        .btn-deep:hover { background-color: var(--primary-mid); color: var(--card-white); }
+
+        .btn-outline-subtle { border: 1px solid var(--border-subtle); color: var(--text-secondary); background: var(--card-white); }
+        .btn-outline-subtle:hover { border-color: var(--primary-vivid); color: var(--primary-vivid); }
+
+        .progress { background-color: var(--surface-bg); border: 1px solid var(--border-subtle); }
+        .progress-bar-gradient { background: linear-gradient(90deg, var(--primary-vivid), var(--primary-mid)) !important; }
+
+        .table-light-override { --bs-table-bg: var(--surface-bg); }
+        .active-row-indicator { background-color: rgba(29, 78, 216, 0.05) !important; border-left: 4px solid var(--primary-vivid) !important; }
+        .badge-table { background-color: var(--primary-mid) !important; color: var(--card-white); }
+        .badge-status { background-color: rgba(34, 197, 94, 0.15) !important; color: var(--accent-success) !important; border: 1px solid rgba(34, 197, 94, 0.2); }
+
+        @media (max-width: 768px) {
+            .gradient-header-bar {
+                margin-top: -24px;
+                margin-left: -24px;
+                margin-right: -24px;
+                padding: 1.5rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+<div class="container-fluid px-md-5 py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-5 gradient-header-bar rounded-bottom-4">
+        <div>
+            <h1 class="fw-bold mb-0"><i class="bi bi-airplane-engines me-2"></i>ARFOMS</h1>
+            <p class="mb-0">Unified Customer Experience & Core Administration Portal</p>
+        </div>
+       
+    </div>
+
+    <div id="alertContainer" class="mb-4"></div>
+
+    <div class="row g-4">
+
+        <div class="col-xl-6 border-end pe-xl-4" style="border-color: var(--border-subtle) !important;">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded-circle me-2 icon-box"><i class="bi bi-person-workspace d-flex"></i></div>
+                <h3 class="fw-bold mb-0">Passenger Portal</h3>
+            </div>
+
+            <div id="heroCard" class="card hero-card shadow tier-SILVER mb-4">
+                <div class="card-body p-4 p-md-5 position-relative">
+                    <span class="badge mb-2 px-3 py-2 rounded-pill fw-bold">
+                        <span id="lblTier">SILVER</span> TIER
+                    </span>
+                    <h2 class="display-5 fw-bold mb-1" id="lblName">No Member Loaded</h2>
+                    <p class="mb-0">Account Reference: #FLY-<span id="lblId">0</span> | Status: <span id="lblStatus">INACTIVE</span></p>
+
+                    <div class="text-md-end mt-4 mt-md-0 position-md-absolute bottom-0 end-0 p-md-5">
+                        <p class="small text-uppercase tracking-wider mb-0" style="opacity: 0.8;">Available Balance</p>
+                        <h1 class="display-4 fw-bold mb-0"><span id="lblMiles">0</span> <small class="fs-4">Miles</small></h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card dashboard-card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-speedometer2 me-2"></i>Tier Progression Tracker</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span id="lblNextTierText">Next Milestone Upgrade</span>
+                    <strong id="lblMilesAway">0 miles away!</strong>
+                </div>
+                <div class="progress mb-2" style="height: 12px;">
+                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gradient" role="progressbar" style="width: 0%"></div>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span id="lblProgressStart">0 m</span>
+                    <span id="lblProgressEnd">25,000 m</span>
+                </div>
+            </div>
+
+            <div class="card dashboard-card p-4">
+                <h5 class="fw-bold mb-1"><i class="bi bi-gift me-2"></i>Instant Rewards Marketplace</h5>
+                <p class="small mb-3">Spend miles safely to unlock digital travel perks.</p>
+
+                <div class="reward-voucher p-3 mb-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="p-3 rounded me-3 icon-box"><i class="bi bi-ticket-perforated fs-4"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-0">$100 Flight Discount Voucher</h6>
+                            <small>Cost: 10,000 Miles</small>
+                        </div>
+                    </div>
+                    <button id="btnRedeem10k" onclick="processRedeem(10000)" class="btn btn-sm btn-vivid px-3 rounded-pill fw-medium">Redeem</button>
+                </div>
+
+                <div class="reward-voucher p-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="p-3 rounded me-3 icon-box"><i class="bi bi-luggage fs-4"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Extra Baggage Voucher (+15 KG)</h6>
+                            <small>Cost: 5,000 Miles</small>
+                        </div>
+                    </div>
+                    <button id="btnRedeem5k" onclick="processRedeem(5000)" class="btn btn-sm btn-vivid px-3 rounded-pill fw-medium">Redeem</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 ps-xl-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded-circle me-2 icon-box" style="background-color: var(--primary-deep);"><i class="bi bi-shield-lock d-flex" style="color: var(--card-white) !important;"></i></div>
+                <h3 class="fw-bold mb-0">Loyalty Manager Terminal</h3>
+            </div>
+
+            <div class="card dashboard-card p-4 mb-4" style="border-top: 4px solid var(--primary-vivid) !important;">
+                <h5 class="fw-bold mb-3"><i class="bi bi-sliders me-2"></i>Manual Balance Overrides</h5>
+                <form id="frmAdjustment" onsubmit="handleManualAdjustment(event)" class="row g-3">
+                    <div class="col-sm-4">
+                        <label class="form-label small fw-bold">Passenger Target ID</label>
+                        <input type="number" id="txtAdminId" class="form-control shadow-sm" value="1" required min="1">
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label small fw-bold">Transaction Miles</label>
+                        <input type="number" id="txtAdminMiles" class="form-control shadow-sm" required min="1">
+                    </div>
+                    <div class="col-sm-4 d-flex align-items-end gap-2">
+                        <button type="submit" onclick="this.form.actionType='credit'" class="btn btn-vivid w-50 shadow-sm"><i class="bi bi-plus-lg"></i> Credit</button>
+                        <button type="submit" onclick="this.form.actionType='debit'" class="btn btn-deep w-50 shadow-sm"><i class="bi bi-dash-lg"></i> Debit</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card dashboard-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-table me-2"></i>Active Registry Ledger</h5>
+                    <button onclick="fetchProfileState()" class="btn btn-sm btn-outline-subtle"><i class="bi bi-arrow-clockwise"></i> Direct Sync</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light-override">
+                        <tr style="border-bottom: 2px solid var(--border-subtle);">
+                            <th>ID</th>
+                            <th>Passenger Name</th>
+                            <th>Miles Balance</th>
+                            <th>Current Tier</th>
+                            <th>System Status</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tblRegistryBody">
+                        <tr>
+                            <td colspan="5" class="text-center py-4">No active member state synchronizations loaded.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const API_ROOT = "http://localhost:8210/api/loyalty";
+    let CURRENT_TRACKING_ID = null;
+
+    async function fetchProfileState() {
+        if (!CURRENT_TRACKING_ID) return;
+        try {
+            const res = await apiFetch(`${API_ROOT}/${CURRENT_TRACKING_ID}`);
+            if (!res.ok) throw new Error("Could not find primary test member profile context records.");
+            const flyer = await res.json();
+
+            // Case-safe mappings to support both snake_case and camelCase payloads
+            const memberName = flyer.memberName || flyer.member_name || "No Name";
+            const memberId = flyer.memberId || flyer.member_id || CURRENT_TRACKING_ID;
+            const memberStatus = flyer.memberStatus || flyer.member_status || "UNKNOWN";
+            const milesBalance = flyer.milesBalance !== undefined ? flyer.milesBalance : (flyer.miles_balance || 0);
+            const membershipTier = flyer.membershipTier || flyer.membership_tier || "SILVER";
+
+            document.getElementById("lblName").innerText = memberName;
+            document.getElementById("lblId").innerText = memberId;
+            document.getElementById("lblStatus").innerText = memberStatus;
+            document.getElementById("lblMiles").innerText = milesBalance.toLocaleString();
+            document.getElementById("lblTier").innerText = membershipTier;
+
+            const hero = document.getElementById("heroCard");
+            hero.className = `card hero-card shadow tier-${membershipTier}`;
+
+            let base = 0, target = 25000, nextLabel = "GOLD";
+
+            if (membershipTier === "GOLD") {
+                base = 25000; target = 50000; nextLabel = "PLATINUM";
+            } else if (membershipTier === "PLATINUM") {
+                base = 50000; target = 50000; nextLabel = "MAXIMUM ACHIEVED";
+            }
+
+            const pointsRemaining = target - milesBalance;
+            const computedPercentage = membershipTier === "PLATINUM" ? 100 : ((milesBalance - base) * 100) / (target - base);
+
+            document.getElementById("lblNextTierText").innerHTML = membershipTier === "PLATINUM" ? `<strong>${nextLabel}</strong>` : `Next Tier Milestone: <strong>${nextLabel}</strong>`;
+            document.getElementById("lblMilesAway").innerText = membershipTier === "PLATINUM" ? "Elite Tier Locked" : `${pointsRemaining.toLocaleString()} miles away!`;
+            document.getElementById("progressBar").style.width = `${computedPercentage}%`;
+            document.getElementById("lblProgressStart").innerText = `${base.toLocaleString()} m`;
+            document.getElementById("lblProgressEnd").innerText = `${target.toLocaleString()} m`;
+
+            document.getElementById("btnRedeem10k").disabled = milesBalance < 10000;
+            document.getElementById("btnRedeem5k").disabled = milesBalance < 5000;
+
+        } catch (err) {
+            displayToastNotification(err.message, "danger");
+        }
+    }
+
+    async function fetchRegistryLedger() {
+        try {
+            const res = await apiFetch(`${API_ROOT}`);
+            if (!res.ok) throw new Error("Failed to pull administrative registry rows.");
+            const membersList = await res.json();
+
+            let tableRowsHtml = "";
+
+            if (!membersList || membersList.length === 0) {
+                document.getElementById("tblRegistryBody").innerHTML = `
+                    <tr><td colspan="5" class="text-center py-4">No active member state records found.</td></tr>`;
+                return;
+            }
+
+            if (!CURRENT_TRACKING_ID) {
+                CURRENT_TRACKING_ID = membersList[0].memberId || membersList[0].member_id;
+                document.getElementById("txtAdminId").value = CURRENT_TRACKING_ID;
+            }
+
+            membersList.forEach(flyer => {
+                // Case-safe mappings to support both snake_case and camelCase layouts inside list
+                const mId = flyer.memberId || flyer.member_id;
+                const mName = flyer.memberName || flyer.member_name || "Unknown";
+                const mMiles = flyer.milesBalance !== undefined ? flyer.milesBalance : (flyer.miles_balance || 0);
+                const mTier = flyer.membershipTier || flyer.membership_tier || "SILVER";
+                const mStatus = flyer.memberStatus || flyer.member_status || "ACTIVE";
+
+                const isActiveRow = mId === CURRENT_TRACKING_ID ? 'class="active-row-indicator"' : '';
+
+                tableRowsHtml += `
+                    <tr ${isActiveRow} onclick="changeActivePassenger(${mId})" style="cursor: pointer;">
+                        <td><strong>${mId}</strong></td>
+                        <td><i class="bi bi-person-circle me-2"></i><strong>${mName}</strong></td>
+                        <td><strong style="color: var(--primary-vivid) !important;">${mMiles.toLocaleString()}</strong></td>
+                        <td><span class="badge rounded-pill badge-table">${mTier}</span></td>
+                        <td><span class="badge badge-status">${mStatus}</span></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("tblRegistryBody").innerHTML = tableRowsHtml;
+
+        } catch (err) {
+            console.error("Ledger Sync Error:", err);
+            document.getElementById("tblRegistryBody").innerHTML = `
+                <tr><td colspan="5" class="text-center py-4 text-danger">Failed to sync registration ledger from API.</td></tr>`;
+        }
+    }
+
+    function changeActivePassenger(newId) {
+        CURRENT_TRACKING_ID = parseInt(newId);
+        document.getElementById("txtAdminId").value = newId;
+        fetchProfileState();
+    }
+
+    async function processRedeem(cost) {
+        try {
+            const res = await apiFetch(`${API_ROOT}/${CURRENT_TRACKING_ID}/redeem`, { 
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ miles: parseInt(cost) })
+            });
+            if (!res.ok) throw new Error("Transaction rejected. Verification failure checking points allocation maps.");
+
+            displayToastNotification(`Successfully purchased your travel reward selection (-${cost} Miles)!`, "success");
+            fetchProfileState();
+        } catch (err) {
+            displayToastNotification(err.message, "danger");
+        }
+    }
+
+    async function handleManualAdjustment(e) {
+        e.preventDefault();
+        const action = e.target.actionType;
+        const targetId = document.getElementById("txtAdminId").value;
+        const inputMiles = document.getElementById("txtAdminMiles").value;
+
+        const targetEndpoint = action === 'credit' ? 'credit' : 'redeem';
+
+        try {
+            const res = await apiFetch(`${API_ROOT}/${targetId}/${targetEndpoint}`, { 
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ miles: parseInt(inputMiles) })
+            });
+            if (!res.ok) throw new Error("Override execution rejected. Check logic safety states or target parameter shapes.");
+
+            displayToastNotification(`Administrative ${action} operation applied successfully to account ID #${targetId}!`, "success");
+            document.getElementById("txtAdminMiles").value = "";
+            fetchProfileState();
+        } catch (err) {
+            displayToastNotification(`Override Action Denied: ${err.message}`, "danger");
+        }
+    }
+
+    function displayToastNotification(msg, statusType) {
+        let borderStyle = statusType === 'success' ? 'var(--accent-success)' : 'var(--primary-vivid)';
+        document.getElementById("alertContainer").innerHTML = `
+            <div class="alert alert-dismissible fade show shadow-sm" role="alert" style="background: var(--card-white); border-left: 4px solid ${borderStyle}; border-top: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+                <i class="bi bi-info-circle-fill me-2"></i> <span style="color: var(--text-primary); font-weight: 500;">${msg}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+    }
+
+    // Modern loading lifecycle hook prevents table population crashes
+    document.addEventListener("DOMContentLoaded", async () => {
+        await fetchRegistryLedger();
+        if (CURRENT_TRACKING_ID) {
+            await fetchProfileState();
+        }
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../arfoms-header.js" data-title="Loyalty Management"></script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>
