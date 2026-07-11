@@ -93,7 +93,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Corrected base path to route requests to BookingController's /flights endpoints
-    const API_BASE = "http://localhost:8210/flights";
+    const API_BASE = "http://localhost:8087/flights";
     const selectedFlight = JSON.parse(sessionStorage.getItem("selectedFlight") || "{}");
 
     if (!selectedFlight || !selectedFlight.flightId) {
@@ -179,7 +179,7 @@
         }
         try {
             // Corrected routing destination address mapping
-            const res = await apiFetch(`${API_BASE}/passenger/${encodeURIComponent(id)}`);
+            const res = await fetch(`${API_BASE}/passenger/${encodeURIComponent(id)}`);
             if (!res.ok) throw new Error("not found");
             const p = await res.json();
             if (!p || !p.id) {
@@ -203,13 +203,13 @@
     function validateNoDuplicatePassengers(passengerDetails) {
         const seenEmails = new Set();
         const seenNames = new Set();
-
+        
         for (const passenger of passengerDetails) {
             if (!passenger.fullName || !passenger.fullName.trim()) continue;
-
+            
             const nameKey = passenger.fullName.trim().toLowerCase();
             const emailKey = passenger.email ? passenger.email.trim().toLowerCase() : null;
-
+            
             // Check for duplicate email
             if (emailKey) {
                 if (seenEmails.has(emailKey)) {
@@ -220,7 +220,7 @@
                 }
                 seenEmails.add(emailKey);
             }
-
+            
             // Check for duplicate name
             if (seenNames.has(nameKey)) {
                 return {
@@ -230,7 +230,7 @@
             }
             seenNames.add(nameKey);
         }
-
+        
         return { valid: true };
     }
 
@@ -258,20 +258,41 @@
             return;
         }
 
-        // Backend validation endpoint does not exist yet; we rely on frontend validation.
-        submitBtn.disabled = false;
+        submitBtn.disabled = true;
+        try {
+            // Evaluates POST validation using the correct base destination gateway mapping
+            const res = await fetch(`${API_BASE}/passenger/validate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    flightId: selectedFlight.flightId,
+                    passengers: count,
+                    passengerDetails: passengerDetails
+                })
+            });
+            if (!res.ok) {
+                let message = "One or more passengers are already booked on this flight.";
+                try { const err = await res.json(); if (err && err.message) message = err.message; } catch (ignore) {}
+                alert(message);
+                submitBtn.disabled = false;
+                return;
+            }
+        } catch (err) {
+            alert("Could not verify passenger details. Please try again.");
+            submitBtn.disabled = false;
+            return;
+        }
 
         const draft = Object.assign({}, selectedFlight, {
             passengers: count,
             passengerDetails: passengerDetails
         });
         sessionStorage.setItem("selectedFlight", JSON.stringify(draft));
-        window.location.href = "/seatinventory/index.html";
+        window.location.href = "../seatinventory/index.html";
     });
 
     renderPassengerCards();
 </script>
-<script src="../arfoms-header.js" data-title="Passenger Details"></script>
-    <script src="/js/auth.js"></script>
+    <script src="../arfoms-header.js" data-title="Passenger Details"></script>
 </body>
 </html>

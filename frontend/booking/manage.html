@@ -176,7 +176,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const API_BASE = "http://localhost:8210/api/bookings";
+    const API_BASE = "http://localhost:8087/flights";
     let currentBooking = null;
 
     function text(id, value) {
@@ -198,30 +198,9 @@
     // Load ALL past bookings and render them as cards
     async function loadBookings() {
         try {
-            const res = await apiFetch(API_BASE);
+            const res = await fetch(`${API_BASE}/bookings`);
             if (!res.ok) throw new Error("Failed to load bookings");
-            let bookings = await res.json();
-            
-            // Map the booking-service payload into what the UI expects and fetch flight info
-            for (let b of bookings) {
-                b.status = b.bookingStatus;
-                b.seat = b.seatNumber;
-                b.fare = b.fareAmount;
-                b.id = b.bookingId;
-                if (b.flightId) {
-                    try {
-                        const flightRes = await apiFetch(`http://localhost:8210/api/flights/${b.flightId}`);
-                        if (flightRes.ok) {
-                            const f = await flightRes.json();
-                            b.airline = f.flightNumber || "-";
-                            b.flightType = "Domestic";
-                            b.flyDate = f.departureTime ? f.departureTime.split('T')[0] : "-";
-                            b.fromLocation = f.origin || "-";
-                            b.toLocation = f.destination || "-";
-                        }
-                    } catch(e) {}
-                }
-            }
+            const bookings = await res.json();
             renderList(bookings || []);
         } catch (err) {
             console.error(err);
@@ -340,14 +319,19 @@
             alert("No booking available to modify.");
             return;
         }
-        
+        const newDate = document.getElementById("newDateInput").value;
+        // Block any date earlier than today (IST)
+        if (!newDate || newDate < getTodayIST()) {
+            alert("Please select today's date or a future date.");
+            return;
+        }
         const payload = {
-            passengerName: currentBooking.passengerName,
-            seatNumber: document.getElementById("chosenSeatVal").value
+            departureDate: newDate,
+            seat: document.getElementById("chosenSeatVal").value
         };
         try {
-            const res = await apiFetch(`${API_BASE}/${currentBooking.id}`, {
-                method: "PATCH",
+            const res = await fetch(`${API_BASE}/${currentBooking.id}/modify`, {
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
@@ -370,7 +354,7 @@
             return;
         }
         try {
-            const res = await apiFetch(`${API_BASE}/${currentBooking.id}/cancel`, { method: "PATCH" });
+            const res = await fetch(`${API_BASE}/${currentBooking.id}/cancel`, { method: "POST" });
             if (!res.ok) throw new Error("Cancel failed");
             currentBooking = await res.json();
             // Show the in-modal confirmation message instead of an alert
@@ -400,7 +384,6 @@
         });
     });
 </script>
-    <script src="../../arfoms-header.js" data-title="Manage Booking"></script>
-    <script src="/js/auth.js"></script>
+<script src="../../arfoms-header.js" data-title="Manage Booking"></script>
 </body>
 </html>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BackgroundAgentGlobalSettings">
+    <option name="selectedModelId" value="auto" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9178f91f-3027-47e7-a3c6-788a11eda280" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/frontend/booking/booking-confirmation/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/booking/booking-confirmation.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/booking/details/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/booking/manage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/booking/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/booking/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/booking/passenger-details/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/booking/passenger-details.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/2503480/Desktop/micro1" value="3GLdqD1oYR5dNfLEbPQMyeDBVQ5" />
+    </persistenceIdMap>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="3GLdqD1oYR5dNfLEbPQMyeDBVQ5" />
+  <component name="ProjectSessionTemplates">
+    <option name="panelTemplate">
+      <template>
+        <option name="modeId" value="Agent" />
+        <option name="model">
+          <model>
+            <option name="modelType" value="builtin_family" />
+            <option name="modelValue" value="auto" />
+          </model>
+        </option>
+        <option name="targetType" value="LOCAL" />
+      </template>
+    </option>
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ApiGatewayApplication.executor": "Run",
+    "Application.AuthApplication.executor": "Run",
+    "Application.BookingServiceApplication.executor": "Run",
+    "Application.CheckinServiceApplication.executor": "Run",
+    "Application.ConfigServerApplication.executor": "Run",
+    "Application.CrewServiceApplication.executor": "Run",
+    "Application.DiscoveryServerApplication.executor": "Run",
+    "Application.FlightServiceApplication.executor": "Run",
+    "Application.LoyaltyServiceApplication.executor": "Run",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/2503480/Desktop/micro1/frontend/booking"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\2503480\Desktop\micro1\frontend\booking" />
+    </key>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9178f91f-3027-47e7-a3c6-788a11eda280" name="Changes" comment="" />
+      <created>1783754971386</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1783754971386</updated>
+    </task>
+    <servers />
+  </component>
+</project>
