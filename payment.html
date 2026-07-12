@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Booking Confirmation</title>
+
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-deep: #020617;
+            --primary-mid: #0b1f5e;
+            --primary-vivid: #1d4ed8;
+            --neutral-dark: #0f172a;
+            --surface-bg: #f8fafc;
+            --card-white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-success: #22c55e;
+            --accent-warn: #f59e0b;
+            --border-subtle: #e2e8f0;
+        }
+
+        body.payment-page {
+            background-color: var(--surface-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .page-content { padding-top: 110px; }
+
+        .top-nav {
+            position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 80px;
+            z-index: 1030; display: flex; align-items: center;
+            background: linear-gradient(90deg, #020617 0%, #0b1f5e 55%, #1d4ed8 100%);
+            box-shadow: 0 10px 28px rgba(2,6,23,.22);
+        }
+        .top-nav-inner {
+            position: relative; width: 100%; height: 100%; padding: 0 28px;
+            display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; flex: 1 1 0; min-width: 0; }
+        .nav-left  { justify-content: flex-start; }
+        .nav-right { justify-content: flex-end; }
+        .nav-title {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+            color: #fff; font-size: 1.6rem; font-weight: 800; letter-spacing: .02em;
+            white-space: nowrap; pointer-events: none;
+        }
+        .nav-icon {
+            width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+            background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.14);
+            color: #fff; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .nav-pill {
+            display: flex; align-items: center; gap: 10px; padding: .55rem .9rem;
+            border-radius: 999px; border: 1px solid rgba(255,255,255,.24);
+            background: rgba(255,255,255,.08); color: #fff; backdrop-filter: blur(8px);
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .nav-pill-brand { font-weight: 800; letter-spacing: .03em; }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--neutral-dark) 0%, var(--primary-mid) 100%);
+            color: #ffffff;
+        }
+
+        .info-panel .card {
+            box-shadow: 0 4px 12px rgba(2, 6, 23, 0.06);
+            border-radius: 12px;
+        }
+
+        .summary-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+        }
+
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-top: 1px dashed var(--border-subtle);
+            padding-top: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .savings-card {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: var(--accent-success);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .confirm-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+            text-align: center;
+        }
+
+        .confirm-section .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(29, 78, 216, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .confirm-section .icon-circle svg {
+            width: 36px;
+            height: 36px;
+            color: var(--primary-vivid);
+        }
+
+        .confirm-btn {
+            background: linear-gradient(135deg, var(--primary-mid) 0%, var(--primary-vivid) 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 14px 48px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(29, 78, 216, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(29, 78, 216, 0.4);
+        }
+
+        /* Disabled state — until a payment method is selected */
+        .confirm-btn:disabled {
+            background: #cbd5e1;
+            color: #f8fafc;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 1;
+        }
+
+        .pay-hint {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .pay-methods {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .pay-option {
+            display: block;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .pay-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .pay-option-body {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 0.95rem 1.1rem;
+            background: var(--card-white);
+            overflow: hidden;
+            transition: transform 0.18s ease, border-color 0.18s ease,
+                box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        /* subtle sheen that sweeps across on hover */
+        .pay-option-body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 30%, rgba(29, 78, 216, 0.06) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .pay-option:hover .pay-option-body {
+            transform: translateY(-2px);
+            border-color: rgba(29, 78, 216, 0.5);
+            box-shadow: 0 12px 26px rgba(2, 6, 23, 0.1);
+        }
+
+        .pay-option:hover .pay-option-body::before {
+            transform: translateX(100%);
+        }
+
+        .pay-option input:checked + .pay-option-body {
+            border-color: var(--primary-vivid);
+            background: linear-gradient(135deg, rgba(29, 78, 216, 0.08) 0%, rgba(11, 31, 94, 0.05) 100%);
+            box-shadow: 0 10px 28px rgba(29, 78, 216, 0.18);
+        }
+
+        .pay-option input:focus-visible + .pay-option-body {
+            outline: 2px solid var(--primary-vivid);
+            outline-offset: 2px;
+        }
+
+        .pay-icon {
+            position: relative;
+            flex: 0 0 48px;
+            height: 48px;
+            width: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.25rem;
+            box-shadow: 0 8px 16px rgba(2, 6, 23, 0.18);
+            transition: transform 0.18s ease;
+        }
+
+        .pay-option:hover .pay-icon {
+            transform: scale(1.06);
+        }
+
+        /* distinct gradient per payment method */
+        .pay-option:nth-of-type(1) .pay-icon {
+            background: linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%);
+            font-size: 0.85rem;
+        }
+        .pay-option:nth-of-type(2) .pay-icon {
+            background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
+        }
+        .pay-option:nth-of-type(3) .pay-icon {
+            background: linear-gradient(135deg, #0f766e 0%, #10b981 100%);
+        }
+        .pay-option:nth-of-type(4) .pay-icon {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        }
+
+        .pay-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+            z-index: 1;
+        }
+
+        .pay-title {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .pay-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* check indicator on the right, revealed when selected */
+        .pay-option-body::after {
+            content: '';
+            margin-left: auto;
+            flex: 0 0 24px;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--border-subtle);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 13px;
+            transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+            z-index: 1;
+        }
+
+        .pay-option input:checked + .pay-option-body::after {
+            border-color: var(--primary-vivid);
+            background-color: var(--primary-vivid);
+            transform: scale(1.1);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+        }
+
+        .pay-details {
+            margin-top: 1rem;
+            padding: 1.1rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            background: var(--surface-bg);
+            animation: payDetailsIn 0.25s ease;
+        }
+
+        @keyframes payDetailsIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pay-details .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .pay-details .form-control,
+        .pay-details .form-select {
+            border-radius: 10px;
+        }
+
+        .confirm-btn:focus {
+            outline: 2px solid var(--primary-vivid);
+            outline-offset: 2px;
+        }
+
+        /* Payment timer bar */
+        .payment-timer-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #020617 0%, #0b1f5e 55%, #1d4ed8 100%);
+            z-index: 2000;
+        }
+
+        .payment-timer-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e 0%, #1d4ed8 100%);
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .payment-timer-progress.warning {
+            background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
+        }
+
+        /* Timer display */
+        .payment-timer-display {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            background: var(--card-white);
+            padding: 12px 16px;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(2, 6, 23, 0.15);
+            z-index: 1025;
+            min-width: 150px;
+            text-align: center;
+            font-weight: 600;
+            border: 2px solid var(--border-subtle);
+        }
+
+        .payment-timer-display.warning {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .payment-timer-display.critical {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .timer-icon {
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .timer-text {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .timer-text.warning {
+            color: #f59e0b;
+        }
+
+        .timer-text.critical {
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .payment-timer-display {
+                top: 85px;
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+            }
+        }
+
+        /* Payment Cancel Confirmation Modal */
+        .payment-cancel-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .payment-cancel-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .payment-cancel-dialog {
+            background: var(--card-white);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(2, 6, 23, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .payment-cancel-dialog .icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .payment-cancel-dialog h4 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .payment-cancel-dialog p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .payment-cancel-dialog .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .payment-cancel-dialog .modal-actions button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .payment-cancel-dialog .btn-stay {
+            background: linear-gradient(135deg, var(--primary-mid) 0%, var(--primary-vivid) 100%);
+            color: white;
+            box-shadow: 0 8px 16px rgba(29, 78, 216, 0.2);
+        }
+
+        .payment-cancel-dialog .btn-stay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(29, 78, 216, 0.3);
+        }
+
+        .payment-cancel-dialog .btn-cancel {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 2px solid #ef4444;
+        }
+
+        .payment-cancel-dialog .btn-cancel:hover {
+            background: #ef4444;
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body class="payment-page">
+<!-- Payment Cancel Confirmation Modal -->
+<div class="payment-cancel-modal" id="paymentCancelModal">
+    <div class="payment-cancel-dialog">
+        <div class="icon">⚠️</div>
+        <h4>Cancel Payment?</h4>
+        <p>Are you sure you want to cancel this payment? Your booking will be discarded and you'll return to search flights.</p>
+        <div class="modal-actions">
+            <button class="btn-stay" id="stayPaymentBtn">No, Stay</button>
+            <button class="btn-cancel" id="cancelPaymentBtn">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Timer Bar -->
+<div class="payment-timer-bar">
+    <div class="payment-timer-progress" id="timerProgressBar"></div>
+</div>
+
+<!-- Timer Display -->
+<div class="payment-timer-display" id="timerDisplay">
+    <span class="timer-icon">⏱️</span>
+    <span class="timer-text" id="timerText">05:00</span>
+</div>
+
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <div class="nav-left" aria-hidden="true">
+            <div class="nav-icon"><i class="fa-solid fa-plane-up"></i></div>
+        </div>
+        <div class="nav-title">Payment</div>
+        <div class="nav-right">
+            <div class="nav-pill d-none d-md-inline-flex">
+                <span class="nav-pill-brand">ARFOMS</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<span id="bookingIdBadge" class="d-none">Booking ID: Pending</span>
+
+<main class="container page-content pb-5">
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-5 col-xl-5">
+            <div class="info-panel">
+                <div class="card border-0 mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Fare Summary</h5>
+                        <div class="summary-stack">
+                            <div class="summary-row">
+                                <span>Base Fare</span>
+                                <span id="baseFare">₹18,500</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Seat Charges</span>
+                                <span id="seatCharges">₹700</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Taxes</span>
+                                <span id="taxes">₹1,250</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total Amount</span>
+                                <span id="totalAmount">₹20,450</span>
+                            </div>
+                        </div>
+                        <div class="savings-card mt-3">
+                            <p class="mb-0" id="savings">
+                                You saved ₹950 with early booking fares.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Flight Details</h5>
+                        <div class="detail-grid">
+                            <div>
+                                <p class="text-uppercase small text-muted mb-1">Flight Number</p>
+                                <h6 class="mb-0" id="flightNumber">AI-208</h6>
+                            </div>
+                            <div>
+                                <p class="text-uppercase small text-muted mb-1">Source</p>
+                                <h6 class="mb-0" id="source">Chennai (CHE)</h6>
+                            </div>
+                            <div>
+                                <p class="text-uppercase small text-muted mb-1">Destination</p>
+                                <h6 class="mb-0" id="destination">Coimbatore (Cbe)</h6>
+                            </div>
+                            <div>
+                                <p class="text-uppercase small text-muted mb-1">Departure</p>
+                                <h6 class="mb-0" id="departureTime">07:45 AM</h6>
+                            </div>
+                            <div>
+                                <p class="text-uppercase small text-muted mb-1">Arrival</p>
+                                <h6 class="mb-0" id="arrivalTime">08:20 PM</h6>
+                            </div>
+                            <div>
+                                <p class="text-uppercase small text-muted mb-1">Passenger</p>
+                                <h6 class="mb-0" id="passengerName">Pranesh</h6>
+                            </div>
+                            <div>
+                                <p class="text-uppercase small text-muted mb-1">Selected Seat</p>
+                                <h6 class="mb-0" id="seatNumber">Not selected</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-xl-5">
+            <div class="card border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-1">Payment</h5>
+                    <p class="text-muted mb-4">Choose how you'd like to pay and confirm your booking.</p>
+
+                    <form id="confirmBookingForm">
+                        <div class="pay-methods" id="payMethods">
+                            <label class="pay-option">
+                                <input type="radio" name="paymentMethod" value="UPI" />
+                                <span class="pay-option-body">
+                                    <span class="pay-icon">UPI</span>
+                                    <span class="pay-text">
+                                        <span class="pay-title">UPI</span>
+                                        <span class="pay-sub">Google Pay, PhonePe, Paytm &amp; more</span>
+                                    </span>
+                                </span>
+                            </label>
+
+                            <label class="pay-option">
+                                <input type="radio" name="paymentMethod" value="CARD" />
+                                <span class="pay-option-body">
+                                    <span class="pay-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="1" y="4" width="22" height="16" rx="2.5" />
+                                            <line x1="1" y1="10" x2="23" y2="10" />
+                                        </svg>
+                                    </span>
+                                    <span class="pay-text">
+                                        <span class="pay-title">Credit / Debit Card</span>
+                                        <span class="pay-sub">Visa, Mastercard, RuPay, Amex</span>
+                                    </span>
+                                </span>
+                            </label>
+
+                            <label class="pay-option">
+                                <input type="radio" name="paymentMethod" value="NETBANKING" />
+                                <span class="pay-option-body">
+                                    <span class="pay-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 21h18" />
+                                            <path d="M5 21V10M19 21V10M9.5 21V14h5v7" />
+                                            <path d="M2.5 9 12 3l9.5 6" />
+                                        </svg>
+                                    </span>
+                                    <span class="pay-text">
+                                        <span class="pay-title">Net Banking</span>
+                                        <span class="pay-sub">All major banks supported</span>
+                                    </span>
+                                </span>
+                            </label>
+
+                            <label class="pay-option">
+                                <input type="radio" name="paymentMethod" value="WALLET" />
+                                <span class="pay-option-body">
+                                    <span class="pay-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                                            <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                                            <path d="M18 12a2 2 0 0 0 0 4h4v-4z" />
+                                        </svg>
+                                    </span>
+                                    <span class="pay-text">
+                                        <span class="pay-title">Wallet</span>
+                                        <span class="pay-sub">Paytm, Amazon Pay, Mobikwik</span>
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="pay-details" id="detailsUPI" hidden>
+                            <label class="form-label" for="upiId">UPI ID</label>
+                            <input class="form-control" type="text" id="upiId" placeholder="yourname@bank" />
+                        </div>
+
+                        <div class="pay-details" id="detailsCARD" hidden>
+                            <label class="form-label" for="cardNumber">Card Number</label>
+                            <input class="form-control mb-2" type="text" id="cardNumber"
+                                   inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" />
+                            <div class="row g-2">
+                                <div class="col-7">
+                                    <label class="form-label" for="cardName">Name on Card</label>
+                                    <input class="form-control" type="text" id="cardName" placeholder="Full name" />
+                                </div>
+                                <div class="col-3">
+                                    <label class="form-label" for="cardExpiry">Expiry</label>
+                                    <input class="form-control" type="text" id="cardExpiry" maxlength="5" placeholder="MM/YY" />
+                                </div>
+                                <div class="col-2">
+                                    <label class="form-label" for="cardCvv">CVV</label>
+                                    <input class="form-control" type="password" id="cardCvv" maxlength="4" placeholder="•••" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pay-details" id="detailsNETBANKING" hidden>
+                            <label class="form-label" for="bank">Select Bank</label>
+                            <select class="form-select" id="bank">
+                                <option value="">Choose your bank…</option>
+                                <option>State Bank of India</option>
+                                <option>HDFC Bank</option>
+                                <option>ICICI Bank</option>
+                                <option>Axis Bank</option>
+                                <option>Kotak Mahindra Bank</option>
+                            </select>
+                        </div>
+
+                        <div class="pay-details" id="detailsWALLET" hidden>
+                            <label class="form-label" for="wallet">Select Wallet</label>
+                            <select class="form-select" id="wallet">
+                                <option value="">Choose your wallet…</option>
+                                <option>Paytm</option>
+                                <option>Amazon Pay</option>
+                                <option>Mobikwik</option>
+                                <option>Freecharge</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary confirm-btn w-100 mt-4" type="submit"
+                                id="confirmPayBtn" disabled>
+                            Pay &amp; Confirm Booking
+                        </button>
+                        <p class="pay-hint text-center mt-2 mb-0" id="payHint">
+                            Select a payment method to continue.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../arfoms-header.js" data-title="Payment"></script>
+<script>
+    // Booking draft accumulated across search → passenger → seat selection
+    const draft = JSON.parse(sessionStorage.getItem('selectedFlight') || '{}');
+
+    const BOOKING_API_BASE = 'http://localhost:8087/flights';
+    const PAYMENT_TIMEOUT_MINUTES = 5;
+    const PAYMENT_TIMEOUT_MS = PAYMENT_TIMEOUT_MINUTES * 60 * 1000;
+
+    let paymentTimeoutId = null;
+    let paymentStartTime = null;
+    let paymentSessionActive = true;
+    let isHandlingBackButton = false;
+
+    // Fare breakdown
+    const passengerCount = Math.min(Math.max(parseInt(draft.passengers || '1', 10), 1), 9);
+    const BASE_FARE = draft.flightType === 'international' ? 18500 : 5200;
+    const baseFareTotal = draft.baseFareTotal != null ? draft.baseFareTotal : BASE_FARE * passengerCount;
+    const seatCharges = draft.seatCharge != null ? draft.seatCharge : 0;
+    const taxes = Math.round(baseFareTotal * 0.05);
+    const savings = Math.round(baseFareTotal * 0.05);
+    const totalAmount = baseFareTotal + seatCharges + taxes;
+
+    // Guard: the flow must come through seat selection
+    if (!draft.fromLocation || !draft.seat) {
+        window.location.href = draft.fromLocation ? 'index.html' : '../booking/index.html';
+    }
+
+    function formatTime(isoTime) {
+        if (!isoTime) return '-';
+        const parts = String(isoTime).split(':');
+        const d = new Date();
+        d.setHours(parseInt(parts[0] || '0', 10), parseInt(parts[1] || '0', 10), 0);
+        return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Timer functionality
+    function initPaymentTimer() {
+        paymentStartTime = Date.now();
+        startTimerCountdown();
+
+        // Set timeout for payment session expiry
+        paymentTimeoutId = setTimeout(() => {
+            handlePaymentTimeout();
+        }, PAYMENT_TIMEOUT_MS);
+    }
+
+    function startTimerCountdown() {
+        const updateTimer = () => {
+            const elapsed = Date.now() - paymentStartTime;
+            const remaining = Math.max(0, PAYMENT_TIMEOUT_MS - elapsed);
+            const totalSeconds = Math.floor(remaining / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+
+            const timerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timerText').textContent = timerText;
+
+            // Calculate progress percentage
+            const progressPercent = ((PAYMENT_TIMEOUT_MS - remaining) / PAYMENT_TIMEOUT_MS) * 100;
+            const progressBar = document.getElementById('timerProgressBar');
+            progressBar.style.width = (100 - progressPercent) + '%';
+
+            // Update styling based on remaining time
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerTextEl = document.getElementById('timerText');
+
+            if (remaining <= 60000) {
+                // Last minute - critical
+                timerDisplay.classList.add('critical');
+                timerDisplay.classList.remove('warning');
+                timerTextEl.classList.add('critical');
+                timerTextEl.classList.remove('warning');
+                progressBar.classList.add('warning');
+            } else if (remaining <= 120000) {
+                // Last 2 minutes - warning
+                timerDisplay.classList.add('warning');
+                timerDisplay.classList.remove('critical');
+                timerTextEl.classList.add('warning');
+                timerTextEl.classList.remove('critical');
+                progressBar.classList.add('warning');
+            } else {
+                timerDisplay.classList.remove('warning', 'critical');
+                timerTextEl.classList.remove('warning', 'critical');
+                progressBar.classList.remove('warning');
+            }
+
+            if (remaining > 0) {
+                requestAnimationFrame(updateTimer);
+            }
+        };
+
+        updateTimer();
+    }
+
+    function handlePaymentTimeout() {
+        paymentSessionActive = false;
+        alert('Your payment session has expired. Please start a new booking.');
+        // Cancel payment and go back to flight search
+        cancelPayment();
+    }
+
+    function cancelPayment() {
+        paymentSessionActive = false;
+        if (paymentTimeoutId) {
+            clearTimeout(paymentTimeoutId);
+        }
+        // Clear booking draft
+        sessionStorage.removeItem('selectedFlight');
+        // Redirect to flight search
+        window.location.href = '../booking/index.html';
+    }
+
+    // Show modal dialog for cancellation
+    function showCancelModal() {
+        const modal = document.getElementById('paymentCancelModal');
+        modal.classList.add('show');
+    }
+
+    // Hide modal dialog
+    function hideCancelModal() {
+        const modal = document.getElementById('paymentCancelModal');
+        modal.classList.remove('show');
+    }
+
+    // Handle modal button clicks
+    document.getElementById('stayPaymentBtn').addEventListener('click', () => {
+        hideCancelModal();
+        // Re-push history state to prevent back button immediately going back
+        history.pushState(null, null, window.location.href);
+    });
+
+    document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
+        hideCancelModal();
+        cancelPayment();
+    });
+
+    // Close modal when clicking outside (on backdrop)
+    document.getElementById('paymentCancelModal').addEventListener('click', (event) => {
+        if (event.target.id === 'paymentCancelModal') {
+            hideCancelModal();
+            // Re-push history state
+            history.pushState(null, null, window.location.href);
+        }
+    });
+
+    // Handle navigation away with confirmation
+    window.addEventListener('beforeunload', (event) => {
+        if (paymentSessionActive && document.getElementById('confirmPayBtn').disabled === false) {
+            event.preventDefault();
+            event.returnValue = '';
+            return '';
+        }
+    });
+
+    // Prevent back button from navigating away
+    window.addEventListener('popstate', (event) => {
+        if (paymentSessionActive && !isHandlingBackButton) {
+            event.preventDefault();
+            isHandlingBackButton = true;
+            showCancelModal();
+            // Re-push state so back button stays on payment page
+            history.pushState(null, null, window.location.href);
+            isHandlingBackButton = false;
+        }
+    });
+
+    // Push initial state to enable back button interception
+    history.pushState(null, null, window.location.href);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderBooking();
+        setupPaymentMethods();
+        initPaymentTimer();
+    });
+
+    // Show the matching detail pane when a payment method is chosen and enable the confirm button.
+    function setupPaymentMethods() {
+        const panes = document.querySelectorAll('.pay-details');
+        const confirmBtn = document.getElementById('confirmPayBtn');
+        const hint = document.getElementById('payHint');
+
+        document.querySelectorAll('input[name="paymentMethod"]').forEach((radio) => {
+            radio.addEventListener('change', () => {
+                panes.forEach((p) => (p.hidden = true));
+                const pane = document.getElementById('details' + radio.value);
+                if (pane) pane.hidden = false;
+
+                confirmBtn.disabled = false;
+                if (hint) hint.hidden = true;
+            });
+        });
+    }
+
+    // Validate the selected payment method + its fields. Returns '' when valid.
+    function validatePayment() {
+        const selected = document.querySelector('input[name="paymentMethod"]:checked');
+        if (!selected) {
+            return 'Please select a payment method.';
+        }
+
+        switch (selected.value) {
+            case 'UPI': {
+                const upi = document.getElementById('upiId').value.trim();
+                if (!/^[\w.\-]{2,}@[a-zA-Z]{2,6}$/.test(upi)) {
+                    return 'Please enter a valid UPI ID (e.g. name@bank).';
+                }
+                break;
+            }
+            case 'CARD': {
+                const number = document.getElementById('cardNumber').value.replace(/\s+/g, '');
+                const name = document.getElementById('cardName').value.trim();
+                const expiry = document.getElementById('cardExpiry').value.trim();
+                const cvv = document.getElementById('cardCvv').value.trim();
+
+                if (!/^\d{16}$/.test(number)) return 'Please enter a valid 16-digit card number.';
+                if (name.length < 3) return 'Please enter a valid name on the card.';
+                if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) return 'Please enter a valid expiry (MM/YY).';
+                if (!/^\d{3}$/.test(cvv)) return 'Please enter a valid 3-digit CVV.';
+                break;
+            }
+            case 'NETBANKING': {
+                if (!document.getElementById('bank').value) return 'Please select your bank.';
+                break;
+            }
+            case 'WALLET': {
+                if (!document.getElementById('wallet').value) return 'Please select your wallet.';
+                break;
+            }
+            default:
+                return 'Please select a payment method.';
+        }
+        return '';
+    }
+
+    function renderBooking() {
+        document.getElementById('bookingIdBadge').textContent = 'Booking ID: Pending';
+
+        document.getElementById('baseFare').textContent = '₹' + baseFareTotal.toLocaleString();
+        document.getElementById('seatCharges').textContent = '₹' + seatCharges.toLocaleString();
+        document.getElementById('taxes').textContent = '₹' + taxes.toLocaleString();
+        document.getElementById('totalAmount').textContent = '₹' + totalAmount.toLocaleString();
+        document.getElementById('savings').textContent =
+            'You saved ₹' + savings.toLocaleString() + ' with early booking fares.';
+
+        const firstPassenger = (draft.passengerDetails && draft.passengerDetails[0]) || {};
+        document.getElementById('flightNumber').textContent = draft.flightNumber || draft.airline || '-';
+        document.getElementById('source').textContent = draft.fromLocation || '-';
+        document.getElementById('destination').textContent = draft.toLocation || '-';
+        document.getElementById('departureTime').textContent = formatTime(draft.departureTimeOnly);
+        document.getElementById('arrivalTime').textContent = formatTime(draft.arrivalTimeOnly);
+        document.getElementById('passengerName').textContent = firstPassenger.fullName || '-';
+        document.getElementById('seatNumber').textContent = draft.seat || 'Not selected';
+    }
+
+    document.getElementById('confirmBookingForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!paymentSessionActive) {
+            alert('Your payment session has expired. Please start a new booking.');
+            return;
+        }
+
+        const form = e.target;
+
+        const error = validatePayment();
+        if (error) {
+            alert(error);
+            return;
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+
+        if (draft.seats && Array.isArray(draft.seats) && draft.passengerDetails && Array.isArray(draft.passengerDetails)) {
+            for (let i = 0; i < draft.passengerDetails.length; i++) {
+                if (!draft.passengerDetails[i]) continue;
+                draft.passengerDetails[i].seat = draft.seats[i] || null;
+            }
+        }
+
+        try {
+            submitBtn.textContent = 'Processing Payment...';
+            paymentSessionActive = false;
+            if (paymentTimeoutId) clearTimeout(paymentTimeoutId);
+
+            const payload = {
+                flightId: draft.flightId,
+                flightType: draft.flightType,
+                fromLocation: draft.fromLocation,
+                toLocation: draft.toLocation,
+                departureDate: draft.departureDate,
+                flyDate: draft.departureDate,
+                passengers: passengerCount,
+                seat: Array.isArray(draft.seats) ? draft.seats.join(',') : (draft.seat || ''),
+                airline: draft.airline || draft.flightNumber,
+                fare: totalAmount,
+                passengerDetails: Array.isArray(draft.passengerDetails) ? draft.passengerDetails : []
+            };
+
+            const saved = await window.sendRequest(BOOKING_API_BASE + '/passenger/confirm', 'POST', payload);
+            const bookingId = saved.id || saved.bookingId;
+
+            sessionStorage.setItem('lastBooking', JSON.stringify(saved));
+            window.location.href = '../booking/booking-confirmation.html?bookingId=' + encodeURIComponent(bookingId);
+        } catch (err) {
+            alert(err.message || 'Sorry, we could not confirm your booking. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Pay & Confirm Booking';
+            paymentSessionActive = true;
+            initPaymentTimer();
+        }
+    });
+</script>
+</body>
+</html>
